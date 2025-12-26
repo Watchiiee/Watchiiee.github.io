@@ -1,22 +1,21 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '@/components/Header';
+// import Header from '@/components/Header';
+import Logo from '@/components/Logo';
 import Hero from '@/components/sections/Hero';
 import Projects from '@/components/sections/Projects';
 import '@/styles/global.css';
 ---
 
-<Layout title="정명성 | 프론트엔드 포트폴리오">
-  <Header client:load />
+<Layout title="정명성 | Front-End Developer">
+  <Logo client:load />
 
-  <main>
-    <Hero client:load />
+  <main class="bg-[#0a192f]"> <Hero />
     
     <Projects client:visible />
-    
-    </main>
+  </main>
   
-  <footer class="py-10 text-center text-gray-500 text-sm border-t mt-20">
-    © 2025 Watchiiee. All rights reserved.
+  <footer class="py-10 text-center text-gray-500 text-sm border-t border-gray-800 mt-20 bg-[#0a192f]">
+    © 2025 Jung MyeongSeong. All rights reserved.
   </footer>
 </Layout>
