@@ -1,44 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Logo() {
   const [isHovered, setIsHovered] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
 
-  // 클릭 시 페이지 새로고침 함수
-  const reload = () => {
-    window.location.reload();
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 50);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   return (
-    // 로고 전체 영역 컨테이너
     <div
-      className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 cursor-pointer font-mono text-lg md:text-xl font-bold tracking-wider text-cyan-400"
+      className={`fixed top-6 left-1/2 transform -translate-x-1/2 z-[100] cursor-pointer 
+        transition-all duration-300 rounded-full border flex items-center justify-center
+        ${
+          scrolled
+            ? "bg-[#0a192f]/90 backdrop-blur-md border-slate-700 shadow-lg py-2 px-4"
+            : "bg-transparent border-transparent py-2 px-2"
+        }
+      `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      onClick={reload}
+      onClick={scrollToTop}
     >
-      <div className="relative">
-        {/* 기본 로고: 호버 시 투명해짐 */}
-        <span
-          className={`absolute top-0 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-300 ${
-            isHovered ? "opacity-0" : "opacity-100"
-          }`}
-        >
-          &lt;Watchiiee/&gt;
-        </span>
+      <div className="flex items-center font-mono text-lg md:text-xl font-bold tracking-wider text-cyan-400 whitespace-nowrap">
+        <span>&lt;Watchiiee</span>
 
-        {/* 호버 시 나타나는 로고 */}
-        <span
-          className={`absolute top-0 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-300 ${
-            isHovered ? "opacity-100" : "opacity-0"
-          }`}
+        <div
+          className={`overflow-hidden transition-all duration-300 ease-in-out flex items-center
+            ${
+              isHovered
+                ? "max-w-[300px] opacity-100 ml-2"
+                : "max-w-0 opacity-0 ml-0"
+            }
+          `}
         >
-          &lt;Watchiiee/ onClick={"{reload}"}/&gt;
-        </span>
+          <span className="text-cyan-200">onClick</span>
+          <span className="text-white">=</span>
+          <span className="text-yellow-300">{"{scrollToTop}"}</span>
+        </div>
 
-        {/* 레이아웃 유지를 위한 투명한 공간 확보용 (가장 긴 텍스트 기준) */}
-        <span className="opacity-0 whitespace-nowrap pointer-events-none">
-          &lt;Watchiiee/ onClick={"{reload}"}/&gt;
-        </span>
+        <span>/&gt;</span>
       </div>
     </div>
   );
