@@ -1,8 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
-// import Header from '@/components/Header';
 import Logo from '@/components/Logo';
 import Hero from '@/components/sections/Hero';
+import Expertise from '@/components/sections/Expertise';
 import Projects from '@/components/sections/Projects';
 import '@/styles/global.css';
 ---
@@ -10,7 +10,10 @@ import '@/styles/global.css';
 <Layout title="정명성 | Front-End Developer">
   <Logo client:load />
 
-  <main class="bg-[#0a192f]"> <Hero />
+  <main class="bg-[#0a192f]">
+    <Hero />
+    
+    <Expertise client:visible />
     
     <Projects client:visible />
   </main>
