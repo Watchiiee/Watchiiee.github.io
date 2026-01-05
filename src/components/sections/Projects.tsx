@@ -52,7 +52,7 @@ const projects: Project[] = [
     stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
     githubLink: "https://github.com/KE-WhyNot",
     demoLink: "https://www.youth-fi.com",
-    image: null,
+    image: "/youthfi.png",
     description: [
       "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
       "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
@@ -79,7 +79,7 @@ const projects: Project[] = [
     ],
     githubLink: "https://github.com/Watchiiee/G.O.A.T",
     demoLink: "https://haezocorp.space/",
-    image: null,
+    image: "/HAEZO.png",
     description: [
       "RBAC(Master/Admin/User) 권한 시스템 및 JWT(Access/Refresh) 기반의 보안 로그인/인터셉터 구현",
       "KPI 지표 시각화(Line/Bar/Pie) 및 서버 연결 실패 시 오프라인 게임(Flappy Bird) 제공",
@@ -97,7 +97,7 @@ const projects: Project[] = [
     period: "2025.05 ~ 2025.06",
     stack: ["React", "JavaScript", "CSS3"],
     githubLink: "https://github.com/Watchiiee/UNISWAP",
-    image: null,
+    image: "/uniswap.png",
     description: [
       "대학생 인증 기반의 폐쇄형 커뮤니티 기능",
       "게시판 CRUD 및 실시간 검색 기능 구현",
@@ -114,7 +114,7 @@ const projects: Project[] = [
     period: "2025.05 ~ 2025.06",
     stack: ["React", "JavaScript", "CSS3"],
     githubLink: "https://github.com/Watchiiee/Zipter_Front",
-    image: null,
+    image: "/zipter.png",
     description: [
       "지도 API 연동을 통한 매물 위치 시각화",
       "필터링 시스템을 통한 맞춤형 매물 추천",
@@ -131,7 +131,7 @@ const projects: Project[] = [
     period: "2024.11 ~ 2024.12",
     stack: ["Java", "Java Swing"],
     githubLink: "https://github.com/Watchiiee/Network_TermProject",
-    image: null,
+    image: "/network.png",
     description: [
       "Java Socket 프로그래밍을 이용한 실시간 멀티플레이 구현",
       "스레드(Thread) 관리를 통한 동시 접속 처리",
