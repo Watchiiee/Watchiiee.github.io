@@ -45,25 +45,6 @@ const projects: Project[] = [
   },
   {
     id: 2,
-    title: "WhyNot?",
-    subtitle: "가천대 카카오엔터프라이즈 미러링 실습 4팀",
-    category: "Team Project / Web",
-    period: "2025.09 ~ 2025.10",
-    stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
-    githubLink: "https://github.com/KE-WhyNot",
-    demoLink: "https://www.youth-fi.com",
-    image: "/youthfi.png",
-    description: [
-      "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
-      "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
-      "ECharts/Nivo 라이브러리 기반의 데이터 시각화로 직관적인 대시보드 UX 제공",
-      "MSW(Mock Service Worker)를 도입해 백엔드 API 개발 대기 시간을 줄인 선행 개발 환경 구축",
-    ],
-    learning:
-      "기업 연계 미러링 실습을 통해 기획부터 배포까지의 전체적인 애자일 프로세스를 경험했습니다. 특히 MSW를 활용해 백엔드 의존성을 낮추어 팀원 간 병렬 개발 효율을 극대화했고, 전역 상태 관리 전략을 수립하며 팀원들과 코드 컨벤션을 맞추는 협업의 중요성을 깊이 배웠습니다.",
-  },
-  {
-    id: 3,
     title: "G.O.A.T",
     subtitle: "카카오엔터프라이즈 & 디케이테크인 기업실무 1팀",
     category: "Team Project / Web",
@@ -88,6 +69,25 @@ const projects: Project[] = [
     ],
     learning:
       "방대한 기능을 팀원들과 분담하여 개발하면서 Git Flow 전략과 코드 리뷰 문화를 정착시켰습니다. TypeScript와 인터셉터를 활용해 복잡한 인증/권한 로직을 안정적으로 처리하는 구조를 설계했고, 서로 다른 모듈을 통합하는 과정에서 발생한 충돌을 해결하며 긴밀한 소통 역량을 키웠습니다.",
+  },
+  {
+    id: 3,
+    title: "WhyNot?",
+    subtitle: "가천대 카카오엔터프라이즈 미러링 실습 4팀",
+    category: "Team Project / Web",
+    period: "2025.09 ~ 2025.10",
+    stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
+    githubLink: "https://github.com/KE-WhyNot",
+    demoLink: "https://www.youth-fi.com",
+    image: "/youthfi.png",
+    description: [
+      "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
+      "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
+      "ECharts/Nivo 라이브러리 기반의 데이터 시각화로 직관적인 대시보드 UX 제공",
+      "MSW(Mock Service Worker)를 도입해 백엔드 API 개발 대기 시간을 줄인 선행 개발 환경 구축",
+    ],
+    learning:
+      "기업 연계 미러링 실습을 통해 기획부터 배포까지의 전체적인 애자일 프로세스를 경험했습니다. 특히 MSW를 활용해 백엔드 의존성을 낮추어 팀원 간 병렬 개발 효율을 극대화했고, 전역 상태 관리 전략을 수립하며 팀원들과 코드 컨벤션을 맞추는 협업의 중요성을 깊이 배웠습니다.",
   },
   {
     id: 4,
@@ -146,7 +146,6 @@ const categories = ["All", "Web", "Team Project", "Java"];
 
 export default function Projects() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
-  // [수정] 현재 선택된 카테고리 상태 추가 (기본값 'All')
   const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
@@ -159,7 +158,6 @@ export default function Projects() {
 
   const selectedProject = projects.find((p) => p.id === selectedId);
 
-  // [수정] 카테고리에 따른 필터링 로직 구현
   const filteredProjects = projects.filter((project) => {
     if (activeCategory === "All") return true;
     return project.category.includes(activeCategory);
