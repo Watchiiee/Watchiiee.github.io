@@ -146,6 +146,8 @@ const categories = ["All", "Web", "Team Project", "Java"];
 
 export default function Projects() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
+  // [수정] 현재 선택된 카테고리 상태 추가 (기본값 'All')
+  const [activeCategory, setActiveCategory] = useState("All");
 
   useEffect(() => {
     if (selectedId) {
@@ -156,6 +158,12 @@ export default function Projects() {
   }, [selectedId]);
 
   const selectedProject = projects.find((p) => p.id === selectedId);
+
+  // [수정] 카테고리에 따른 필터링 로직 구현
+  const filteredProjects = projects.filter((project) => {
+    if (activeCategory === "All") return true;
+    return project.category.includes(activeCategory);
+  });
 
   return (
     <section id="projects" className="py-24 bg-[#0a192f] text-white relative">
@@ -179,8 +187,11 @@ export default function Projects() {
             {categories.map((cat, idx) => (
               <button
                 key={idx}
+                // [수정] 버튼 클릭 시 상태 변경
+                onClick={() => setActiveCategory(cat)}
+                // [수정] 활성화된 카테고리에 색상 적용
                 className={`hover:text-cyan-400 transition-colors ${
-                  idx === 0 ? "text-cyan-400" : "text-slate-500"
+                  activeCategory === cat ? "text-cyan-400" : "text-slate-500"
                 }`}
               >
                 {cat}{" "}
@@ -192,8 +203,10 @@ export default function Projects() {
 
         {/* 프로젝트 그리드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {projects.map((project, index) => (
+          {/* [수정] filteredProjects 사용 */}
+          {filteredProjects.map((project, index) => (
             <motion.div
+              layout // [수정] 필터링 시 자연스러운 위치 이동 애니메이션
               key={project.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
