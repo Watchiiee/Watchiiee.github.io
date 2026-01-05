@@ -49,17 +49,18 @@ const projects: Project[] = [
     subtitle: "가천대 카카오엔터프라이즈 미러링 실습 4팀",
     category: "Team Project / Web",
     period: "2025.09 ~ 2025.10",
-    stack: ["React", "JavaScript", "Zustand", "CSS3"],
+    stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
     githubLink: "https://github.com/KE-WhyNot",
     demoLink: "https://www.youth-fi.com",
     image: null,
     description: [
-      "팀 프로젝트 협업 및 애자일 방법론 적용",
-      "Zustand를 활용한 전역 상태 관리",
-      "사용자 친화적인 UI/UX 기획 및 구현",
+      "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
+      "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
+      "ECharts/Nivo 라이브러리 기반의 데이터 시각화로 직관적인 대시보드 UX 제공",
+      "MSW(Mock Service Worker)를 도입해 백엔드 API 개발 대기 시간을 줄인 선행 개발 환경 구축",
     ],
     learning:
-      "기업 연계 미러링 실습을 통해 현업과 유사한 환경에서 협업하는 방식을 경험했습니다. Zustand를 처음 도입해보며 Redux보다 가벼운 상태 관리의 장점을 체감했습니다.",
+      "기업 연계 미러링 실습을 통해 기획부터 배포까지의 전체적인 애자일 프로세스를 경험했습니다. 특히 MSW를 활용해 백엔드 의존성을 낮추어 팀원 간 병렬 개발 효율을 극대화했고, 전역 상태 관리 전략을 수립하며 팀원들과 코드 컨벤션을 맞추는 협업의 중요성을 깊이 배웠습니다.",
   },
   {
     id: 3,
@@ -80,12 +81,13 @@ const projects: Project[] = [
     demoLink: "https://haezocorp.space/",
     image: null,
     description: [
-      "Canvas API를 활용한 그래픽 요소 구현",
-      "Framer Motion을 이용한 자연스러운 애니메이션 효과",
-      "Vite 기반의 빠른 개발 환경 세팅 및 최적화",
+      "RBAC(Master/Admin/User) 권한 시스템 및 JWT(Access/Refresh) 기반의 보안 로그인/인터셉터 구현",
+      "KPI 지표 시각화(Line/Bar/Pie) 및 서버 연결 실패 시 오프라인 게임(Flappy Bird) 제공",
+      "S3 기반 3단계 문서 업로드(URL발급→업로드→완료), 미리보기, 승인 결재 시스템 및 버전 관리",
+      "Canvas API를 활용한 반응형 조직도(줌/스크롤, 드래그 앤 드롭) 및 부서/구성원 CRUD 관리",
     ],
     learning:
-      "TypeScript를 실무 프로젝트에 본격적으로 도입하여 타입 안정성을 확보하는 중요성을 배웠습니다.",
+      "방대한 기능을 팀원들과 분담하여 개발하면서 Git Flow 전략과 코드 리뷰 문화를 정착시켰습니다. TypeScript와 인터셉터를 활용해 복잡한 인증/권한 로직을 안정적으로 처리하는 구조를 설계했고, 서로 다른 모듈을 통합하는 과정에서 발생한 충돌을 해결하며 긴밀한 소통 역량을 키웠습니다.",
   },
   {
     id: 4,
@@ -313,7 +315,7 @@ export default function Projects() {
                       </div>
                     </div>
 
-                    {/* ▼▼▼ 3. 링크 렌더링 부분 수정 (둘 다 있으면 둘 다 표시) ▼▼▼ */}
+                    {/* 링크 렌더링 부분 */}
                     {(selectedProject.githubLink ||
                       selectedProject.demoLink) && (
                       <div className="flex flex-col gap-3 pt-4 border-t border-slate-700">
