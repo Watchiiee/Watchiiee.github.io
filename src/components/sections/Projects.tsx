@@ -48,16 +48,20 @@ const projects: Project[] = [
   {
     id: 2,
     title: "ISeeU",
-    subtitle: "간호대생 임상 실습 및 학습 플랫폼 (외주)",
-    category: "Freelance / Web Dashboard",
+    subtitle: "간호대생 중환자실(ICU) 임상 실습 및 학습 플랫폼 (외주)",
+    category: "Freelance / Web Platform",
     period: "2026.02 ~ 2026.02",
     stack: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Axios", "xlsx"],
     githubLink: "https://github.com/Watchiiee/IseeU",
     demoLink: "https://www.iseeu.kr/",
     image: "/IseeU.png",
+
     description: [
-      "실시간 접속자 모니터링 및 복잡한 학생 학습 데이터 다중 Depth 엑셀 다운로드 기능 구현",
-      "AI 튜터 로그 조회 및 실시간 공지 전송 등 관리자 웹 대시보드 전체 구축",
+      "학습 콘텐츠(ICU 8대 주제 영상/퀴즈, 심전도, EKG 등) 제공 및 실습 일지 웹 작성/PDF 반출 기능 구현",
+      "전공 서적 기반 RAG(검색 증강 생성) 챗봇 연동 및 LLM 기반의 임상 추론 시나리오 평가(SBAR) UI 구축",
+      "메뉴 체류 시간, PDF 열람 유무, 영상 클릭 등 세밀한 사용자 행동 이벤트 로깅(Session Tracking) 처리",
+      "저작권 보호를 위해 다운로드/인쇄를 차단한 커스텀 PDF 뷰어와 약물 계산 랜덤 퀴즈 로직 구현",
+      "실시간 접속자 모니터링 및 복잡한 학생 학습 데이터의 다중 Depth 엑셀 다운로드를 포함한 관리자 대시보드 구축",
     ],
 
     troubleshooting: [
@@ -66,8 +70,9 @@ const projects: Project[] = [
       "저작권 보호 뷰어: 강의 자료(PDF)의 무단 다운로드 및 인쇄를 막기 위해 브라우저 기본 뷰어를 대체하는 커스텀 UI 및 우클릭/드래그 방지 적용",
       "대시보드 RWD 최적화: 수십 개의 컬럼을 가진 방대한 통계 테이블에 커스텀 가로 스크롤 및 Tailwind Breakpoints 기반 동적 레이아웃을 적용하여 모바일 사용성 극대화",
     ],
+
     learning:
-      "프리랜서 외주 개발자로서 클라이언트 요구사항을 분석하고 Figma 시안을 바탕으로 프론트엔드 전반을 독자적으로 구축했습니다. JWT와 HttpOnly 쿠키를 조합한 안전한 인증 흐름을 설계하며 보안에 대한 이해도를 높였고, Gemini/Cursor 등 AI 어시스턴트를 적극 활용하여 복잡한 테이블 렌더링 최적화와 트러블슈팅 시간을 단축하며 생산성을 극대화하는 경험을 했습니다.",
+      "프리랜서 외주 개발자로서 클라이언트 요구사항을 분석하고 Figma 시안을 바탕으로 프론트엔드 전반을 독자적으로 구축했습니다. 단순 UI 구현을 넘어, LLM 챗봇 연동과 세밀한 사용자 이벤트 로깅 등 난이도 높은 기능들을 처리하며 프론트엔드의 역할 확장을 경험했습니다. 또한 JWT와 HttpOnly 쿠키를 조합한 안전한 인증 흐름을 설계하며 보안 지식을 쌓았고, AI 어시스턴트를 적극 활용해 복잡한 테이블 렌더링 최적화와 트러블슈팅 시간을 크게 단축했습니다.",
   },
   {
     id: 3,
