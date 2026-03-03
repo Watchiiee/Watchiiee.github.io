@@ -8,6 +8,7 @@ import {
   Calendar,
   Layers,
   Code2,
+  Wrench, // 트러블슈팅 아이콘 추가
 } from "lucide-react";
 
 interface Project {
@@ -21,6 +22,7 @@ interface Project {
   demoLink?: string;
   image: string | null;
   description: string[];
+  troubleshooting?: string[]; // 트러블슈팅 항목 추가 (선택 사항)
   learning: string;
 }
 
@@ -45,6 +47,30 @@ const projects: Project[] = [
   },
   {
     id: 2,
+    title: "ISeeU",
+    subtitle: "간호대생 임상 실습 및 학습 플랫폼 (외주)",
+    category: "Freelance / Web Dashboard",
+    period: "2026.02 ~ 2026.02",
+    stack: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Axios", "xlsx"],
+    githubLink: "https://github.com/Watchiiee/IseeU",
+    demoLink: "https://www.iseeu.kr/",
+    image: "/IseeU.png",
+    description: [
+      "실시간 접속자 모니터링 및 복잡한 학생 학습 데이터 다중 Depth 엑셀 다운로드 기능 구현",
+      "AI 튜터 로그 조회 및 실시간 공지 전송 등 관리자 웹 대시보드 전체 구축",
+    ],
+
+    troubleshooting: [
+      "보안/인증 고도화: HttpOnly 쿠키 기반 Silent Refresh 구현 시 발생한 CORS 및 인터셉터 무한 루프 문제를 전용 Axios 인스턴스 분리로 해결하여 안전한 인증 흐름 구축",
+      "다중 세션 동기화: 다중 기기 접속 시 발생하는 토큰 만료 충돌을 Zustand 스토어 초기화 및 즉각적인 401 예외 처리 로직으로 방어",
+      "저작권 보호 뷰어: 강의 자료(PDF)의 무단 다운로드 및 인쇄를 막기 위해 브라우저 기본 뷰어를 대체하는 커스텀 UI 및 우클릭/드래그 방지 적용",
+      "대시보드 RWD 최적화: 수십 개의 컬럼을 가진 방대한 통계 테이블에 커스텀 가로 스크롤 및 Tailwind Breakpoints 기반 동적 레이아웃을 적용하여 모바일 사용성 극대화",
+    ],
+    learning:
+      "프리랜서 외주 개발자로서 클라이언트 요구사항을 분석하고 Figma 시안을 바탕으로 프론트엔드 전반을 독자적으로 구축했습니다. JWT와 HttpOnly 쿠키를 조합한 안전한 인증 흐름을 설계하며 보안에 대한 이해도를 높였고, Gemini/Cursor 등 AI 어시스턴트를 적극 활용하여 복잡한 테이블 렌더링 최적화와 트러블슈팅 시간을 단축하며 생산성을 극대화하는 경험을 했습니다.",
+  },
+  {
+    id: 3,
     title: "G.O.A.T",
     subtitle: "카카오엔터프라이즈 & 디케이테크인 기업실무 1팀",
     category: "Team Project / Web",
@@ -71,7 +97,7 @@ const projects: Project[] = [
       "방대한 기능을 팀원들과 분담하여 개발하면서 Git Flow 전략과 코드 리뷰 문화를 정착시켰습니다. TypeScript와 인터셉터를 활용해 복잡한 인증/권한 로직을 안정적으로 처리하는 구조를 설계했고, 서로 다른 모듈을 통합하는 과정에서 발생한 충돌을 해결하며 긴밀한 소통 역량을 키웠습니다.",
   },
   {
-    id: 3,
+    id: 4,
     title: "WhyNot?",
     subtitle: "가천대 카카오엔터프라이즈 미러링 실습 4팀",
     category: "Team Project / Web",
@@ -90,7 +116,7 @@ const projects: Project[] = [
       "기업 연계 미러링 실습을 통해 기획부터 배포까지의 전체적인 애자일 프로세스를 경험했습니다. 특히 MSW를 활용해 백엔드 의존성을 낮추어 팀원 간 병렬 개발 효율을 극대화했고, 전역 상태 관리 전략을 수립하며 팀원들과 코드 컨벤션을 맞추는 협업의 중요성을 깊이 배웠습니다.",
   },
   {
-    id: 4,
+    id: 5,
     title: "UNI_SWAP",
     subtitle: "고급웹프로그래밍: 대학교 중고거래 플랫폼",
     category: "Team Project / Platform",
@@ -107,7 +133,7 @@ const projects: Project[] = [
       "웹 프로그래밍 수업을 통해 React의 생명주기와 Hooks의 원리를 깊이 있게 이해하게 되었습니다.",
   },
   {
-    id: 5,
+    id: 6,
     title: "Zipter",
     subtitle: "소프트웨어공학: 부동산 추천 및 지역 커뮤니티",
     category: "Team Project / Service",
@@ -124,7 +150,7 @@ const projects: Project[] = [
       "소프트웨어 공학 이론을 바탕으로 요구사항 분석부터 설계, 구현, 테스트까지의 전체 SDLC 과정을 경험했습니다.",
   },
   {
-    id: 6,
+    id: 7,
     title: "Speed Quiz Game",
     subtitle: "컴퓨터 네트워크: 텀 프로젝트",
     category: "Team Project / Java GUI",
@@ -142,7 +168,7 @@ const projects: Project[] = [
   },
 ];
 
-const categories = ["All", "Web", "Team Project", "Java"];
+const categories = ["All", "Web", "Team Project", "Freelance", "Java"];
 
 export default function Projects() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -185,9 +211,7 @@ export default function Projects() {
             {categories.map((cat, idx) => (
               <button
                 key={idx}
-                // [수정] 버튼 클릭 시 상태 변경
                 onClick={() => setActiveCategory(cat)}
-                // [수정] 활성화된 카테고리에 색상 적용
                 className={`hover:text-cyan-400 transition-colors ${
                   activeCategory === cat ? "text-cyan-400" : "text-slate-500"
                 }`}
@@ -201,10 +225,9 @@ export default function Projects() {
 
         {/* 프로젝트 그리드 */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {/* [수정] filteredProjects 사용 */}
           {filteredProjects.map((project, index) => (
             <motion.div
-              layout // [수정] 필터링 시 자연스러운 위치 이동 애니메이션
+              layout
               key={project.id}
               initial={{ opacity: 0, y: 50 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -219,7 +242,7 @@ export default function Projects() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 object-top"
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-slate-800 transition-transform duration-500 group-hover:scale-110 group-hover:bg-slate-700">
@@ -281,7 +304,7 @@ export default function Projects() {
                       <img
                         src={selectedProject.image}
                         alt={selectedProject.title}
-                        className="w-full h-full object-cover"
+                        className="w-full h-full object-cover object-top"
                       />
                     ) : (
                       <FolderOpen className="w-16 h-16 text-slate-500" />
@@ -330,7 +353,6 @@ export default function Projects() {
                     {(selectedProject.githubLink ||
                       selectedProject.demoLink) && (
                       <div className="flex flex-col gap-3 pt-4 border-t border-slate-700">
-                        {/* GitHub 링크 */}
                         {selectedProject.githubLink && (
                           <div className="flex items-start gap-3">
                             <Github className="w-5 h-5 text-slate-400 shrink-0" />
@@ -349,7 +371,6 @@ export default function Projects() {
                             </div>
                           </div>
                         )}
-                        {/* 배포(Demo) 링크 */}
                         {selectedProject.demoLink && (
                           <div className="flex items-start gap-3">
                             <ExternalLink className="w-5 h-5 text-slate-400 shrink-0" />
@@ -375,6 +396,7 @@ export default function Projects() {
 
                 {/* 우측 패널 */}
                 <div className="w-full md:w-3/5 p-8 overflow-y-auto">
+                  {/* 주요 기능 */}
                   <div className="mb-8">
                     <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
                       <Code2 className="w-5 h-5 text-cyan-400" />
@@ -393,6 +415,39 @@ export default function Projects() {
                     </ul>
                   </div>
 
+                  {/* 트러블슈팅 (데이터가 있는 경우에만 렌더링) */}
+                  {selectedProject.troubleshooting && (
+                    <div className="mb-8">
+                      <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
+                        <Wrench className="w-5 h-5 text-orange-400" />
+                        Troubleshooting
+                      </h4>
+                      <ul className="space-y-3">
+                        {selectedProject.troubleshooting.map((issue, i) => {
+                          const [title, content] = issue.split(":"); // 콜론을 기준으로 제목과 내용 분리
+                          return (
+                            <li
+                              key={i}
+                              className="text-slate-300 text-sm leading-relaxed bg-slate-800/20 p-3 rounded-lg border-l-2 border-orange-500/50"
+                            >
+                              {content ? (
+                                <>
+                                  <strong className="text-orange-300">
+                                    {title}:
+                                  </strong>{" "}
+                                  {content}
+                                </>
+                              ) : (
+                                issue
+                              )}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* 배운 점 */}
                   <div>
                     <h4 className="text-lg font-bold text-white mb-4 border-l-4 border-pink-500 pl-3">
                       What I Learned
