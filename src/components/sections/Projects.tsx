@@ -103,6 +103,29 @@ const projects: Project[] = [
     githubLink: "https://github.com/Watchiiee/IseeU",
     demoLink: "https://www.iseeu.kr/",
     image: "/IseeU.png",
+    detailImage: "/iseeu/preceptor.webp",
+    gallery: [
+      {
+        src: "/iseeu/topics.webp",
+        caption: "ICU 학습주제: 주제별 멀티미디어 학습 콘텐츠",
+      },
+      {
+        src: "/iseeu/preceptor.webp",
+        caption: "AI 프리셉터: LLM 기반 임상 추론 시나리오 롤플레잉",
+      },
+      {
+        src: "/iseeu/guide.webp",
+        caption: "실습 안내: 일정·시간표·집담회 정보 (실명 마스킹)",
+      },
+      {
+        src: "/iseeu/students.webp",
+        caption: "관리자 학생 관리: 검색·페이지네이션 (개인정보 마스킹)",
+      },
+      {
+        src: "/iseeu/evaluation.webp",
+        caption: "학습 현황 대시보드: 다중 헤더 통계 테이블 (개인정보 마스킹)",
+      },
+    ],
 
     description: [
       "학습 콘텐츠(ICU 8대 주제 영상/퀴즈, 심전도, EKG 등) 제공 및 실습 일지 웹 작성/PDF 반출 기능 구현",
