@@ -9,6 +9,9 @@ import {
   Layers,
   Code2,
   Wrench, // 트러블슈팅 아이콘 추가
+  Images,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 
 interface Project {
@@ -21,6 +24,9 @@ interface Project {
   githubLink?: string;
   demoLink?: string;
   image: string | null;
+  imageFit?: "cover" | "contain"; // 로고처럼 잘리면 안 되는 대표 이미지는 contain
+  detailImage?: string; // 상세 모달에서 대표 이미지 대신 보여줄 서비스 화면
+  gallery?: { src: string; caption: string }[]; // 상세 모달 Screenshots 섹션 (클릭 시 확대)
   description: string[];
   troubleshooting?: string[]; // 트러블슈팅 항목 추가 (선택 사항)
   learning: string;
@@ -44,7 +50,32 @@ const projects: Project[] = [
       "GitHub Actions",
     ],
     githubLink: "https://github.com/Watchiiee/AiAn",
-    image: null,
+    image: "/aian/cover.webp",
+    detailImage: "/aian/review.webp",
+    gallery: [
+      { src: "/aian/inquiry.webp", caption: "민원인 문의 작성" },
+      { src: "/aian/submitted.webp", caption: "문의 접수 및 번호 발급" },
+      {
+        src: "/aian/review.webp",
+        caption: "담당자 검토: AI 분류·확신도·부서 배정과 답변 초안",
+      },
+      {
+        src: "/aian/evidence.webp",
+        caption: "RAG 근거 문서: 답변에 사용된 문서와 참고 문서 구분",
+      },
+      {
+        src: "/aian/copilot.webp",
+        caption: "AI 코파일럿 질의와 승인된 최종 답변",
+      },
+      {
+        src: "/aian/pipeline.webp",
+        caption: "LangGraph 파이프라인: 재검색·재생성 루프",
+      },
+      {
+        src: "/aian/architecture.webp",
+        caption: "NCP 배포 아키텍처: Private 백엔드, LB, Auto Scaling, NAT",
+      },
+    ],
     description: [
       "LangGraph 14개 노드 Adaptive RAG 파이프라인으로 민원 분류 → 부서 배정 → 근거 검색 → 답변 초안 생성 → 할루시네이션 검증까지 자동화",
       "FastAPI REST API와 JWT(bcrypt) 인증, 3단계 RBAC(general/staff/master) 기반 부서별 검토 큐 및 부서 재배정 승인 흐름 구현",
@@ -107,7 +138,9 @@ const projects: Project[] = [
       "GitHub Actions",
     ],
     githubLink: "https://github.com/SafetyTrip2026/BE",
-    image: null,
+    image: "/safetytrip-logo.png",
+    imageFit: "contain",
+    detailImage: "/safetytrip-demo.webp",
     description: [
       "행정안전부 긴급재난문자 3개년 53,631건과 국민행동요령 751건을 수집·정제해 Supabase(Postgres + pgvector)에 적재",
       "LangGraph 에이전트로 질문 파싱 → 지역·시기별 재난 통계 SQL 집계 / 벡터 검색 → 2중 게이트 → 답변 생성 흐름 구현, FastAPI SSE로 스트리밍",
@@ -264,6 +297,33 @@ export default function Projects() {
   }, [selectedId]);
 
   const selectedProject = projects.find((p) => p.id === selectedId);
+  const gallery = selectedProject?.gallery ?? [];
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+
+  const closeModal = () => {
+    setLightboxIndex(null);
+    setSelectedId(null);
+  };
+
+  // ESC: 확대 보기가 열려 있으면 그것부터 닫고, 아니면 모달 닫기 / 좌우 화살표: 이미지 이동
+  useEffect(() => {
+    if (!selectedId) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (lightboxIndex !== null) {
+        if (e.key === "Escape") setLightboxIndex(null);
+        if (e.key === "ArrowRight")
+          setLightboxIndex((lightboxIndex + 1) % gallery.length);
+        if (e.key === "ArrowLeft")
+          setLightboxIndex(
+            (lightboxIndex - 1 + gallery.length) % gallery.length
+          );
+      } else if (e.key === "Escape") {
+        closeModal();
+      }
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [selectedId, lightboxIndex, gallery.length]);
 
   const filteredProjects = projects.filter((project) => {
     if (activeCategory === "All") return true;
@@ -323,7 +383,11 @@ export default function Projects() {
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 object-top"
+                      className={`w-full h-full transition-transform duration-500 group-hover:scale-110 ${
+                        project.imageFit === "contain"
+                          ? "object-contain p-6 bg-white"
+                          : "object-cover object-top"
+                      }`}
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center bg-slate-800 transition-transform duration-500 group-hover:scale-110 group-hover:bg-slate-700">
@@ -360,7 +424,7 @@ export default function Projects() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={() => setSelectedId(null)}
+            onClick={closeModal}
           >
             <motion.div
               layoutId={`project-${selectedProject.id}`}
@@ -371,7 +435,8 @@ export default function Projects() {
               className="bg-[#112240] w-full max-w-4xl max-h-[90vh] overflow-y-auto rounded-xl shadow-2xl relative border border-slate-700"
             >
               <button
-                onClick={() => setSelectedId(null)}
+                onClick={closeModal}
+                aria-label="닫기"
                 className="absolute top-4 right-4 p-2 bg-slate-800/50 hover:bg-slate-700 rounded-full text-white transition-colors z-10"
               >
                 <X className="w-6 h-6" />
@@ -380,17 +445,41 @@ export default function Projects() {
               <div className="flex flex-col md:flex-row">
                 {/* 좌측 패널 */}
                 <div className="w-full md:w-2/5 bg-slate-800/30 p-8 flex flex-col">
-                  <div className="aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 flex items-center justify-center shadow-inner">
-                    {selectedProject.image ? (
+                  {selectedProject.detailImage ? (
+                    // 서비스 화면은 클릭하면 원본 크기로 볼 수 있도록 링크로 감쌈
+                    <a
+                      href={selectedProject.detailImage}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="group/detail relative block aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 shadow-inner"
+                    >
                       <img
-                        src={selectedProject.image}
-                        alt={selectedProject.title}
-                        className="w-full h-full object-cover object-top"
+                        src={selectedProject.detailImage}
+                        alt={`${selectedProject.title} 서비스 화면`}
+                        className="w-full h-full object-cover object-left-top transition-transform duration-500 group-hover/detail:scale-105"
                       />
-                    ) : (
-                      <FolderOpen className="w-16 h-16 text-slate-500" />
-                    )}
-                  </div>
+                      <span className="absolute bottom-2 right-2 flex items-center gap-1 px-2 py-1 rounded bg-black/60 text-xs text-slate-200 opacity-0 group-hover/detail:opacity-100 transition-opacity">
+                        <ExternalLink className="w-3 h-3" />
+                        원본 크기로 보기
+                      </span>
+                    </a>
+                  ) : (
+                    <div className="aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 flex items-center justify-center shadow-inner">
+                      {selectedProject.image ? (
+                        <img
+                          src={selectedProject.image}
+                          alt={selectedProject.title}
+                          className={`w-full h-full ${
+                            selectedProject.imageFit === "contain"
+                              ? "object-contain p-4 bg-white"
+                              : "object-cover object-top"
+                          }`}
+                        />
+                      ) : (
+                        <FolderOpen className="w-16 h-16 text-slate-500" />
+                      )}
+                    </div>
+                  )}
 
                   <h3 className="text-2xl font-bold text-white mb-1">
                     {selectedProject.title}
@@ -531,6 +620,41 @@ export default function Projects() {
                     </div>
                   )}
 
+                  {/* 스크린샷 갤러리 (데이터가 있는 경우에만 렌더링) */}
+                  {gallery.length > 0 && (
+                    <div className="mb-8">
+                      <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
+                        <Images className="w-5 h-5 text-sky-400" />
+                        Screenshots
+                      </h4>
+                      <div className="grid grid-cols-2 gap-3">
+                        {gallery.map((shot, i) => (
+                          <button
+                            key={shot.src}
+                            type="button"
+                            onClick={() => setLightboxIndex(i)}
+                            className="group/shot text-left"
+                          >
+                            <div className="aspect-video rounded-lg overflow-hidden bg-slate-800/60 border border-slate-700 group-hover/shot:border-cyan-400 transition-colors">
+                              <img
+                                src={shot.src}
+                                alt={shot.caption}
+                                loading="lazy"
+                                className="w-full h-full object-contain transition-transform duration-300 group-hover/shot:scale-105"
+                              />
+                            </div>
+                            <span className="block mt-2 text-xs text-slate-400 leading-snug break-keep">
+                              <span className="font-mono text-cyan-400 mr-1">
+                                {String(i + 1).padStart(2, "0")}
+                              </span>
+                              {shot.caption}
+                            </span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {/* 배운 점 */}
                   <div>
                     <h4 className="text-lg font-bold text-white mb-4 border-l-4 border-pink-500 pl-3">
@@ -543,6 +667,71 @@ export default function Projects() {
                 </div>
               </div>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 스크린샷 확대 보기 (모달 위에 표시) */}
+      <AnimatePresence>
+        {lightboxIndex !== null && gallery[lightboxIndex] && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[300] flex items-center justify-center p-4 md:p-12 bg-black/90"
+            onClick={() => setLightboxIndex(null)}
+          >
+            <button
+              onClick={() => setLightboxIndex(null)}
+              aria-label="확대 보기 닫기"
+              className="absolute top-4 right-4 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
+            >
+              <X className="w-6 h-6" />
+            </button>
+
+            {gallery.length > 1 && (
+              <>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex(
+                      (lightboxIndex - 1 + gallery.length) % gallery.length
+                    );
+                  }}
+                  aria-label="이전 이미지"
+                  className="absolute left-2 md:left-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
+                >
+                  <ChevronLeft className="w-6 h-6" />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setLightboxIndex((lightboxIndex + 1) % gallery.length);
+                  }}
+                  aria-label="다음 이미지"
+                  className="absolute right-2 md:right-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
+                >
+                  <ChevronRight className="w-6 h-6" />
+                </button>
+              </>
+            )}
+
+            <figure
+              className="flex flex-col items-center max-w-5xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <img
+                src={gallery[lightboxIndex].src}
+                alt={gallery[lightboxIndex].caption}
+                className="max-h-[78vh] max-w-full object-contain rounded-lg shadow-2xl"
+              />
+              <figcaption className="mt-4 text-sm text-slate-300 text-center break-keep">
+                <span className="font-mono text-cyan-400 mr-2">
+                  {lightboxIndex + 1} / {gallery.length}
+                </span>
+                {gallery[lightboxIndex].caption}
+              </figcaption>
+            </figure>
           </motion.div>
         )}
       </AnimatePresence>
