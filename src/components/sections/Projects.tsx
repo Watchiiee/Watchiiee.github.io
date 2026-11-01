@@ -179,6 +179,31 @@ const projects: Project[] = [
       "안전 도메인에서는 그럴듯한 오답이 실제 위험으로 이어질 수 있기 때문에, '모르면 모른다고 하는' 시스템을 목표로 설계했습니다. 통계는 SQL 집계로, 행동 지침은 공식 문서 인용으로만 답하게 하고 그 판단의 정확도를 precision/recall로 측정하며, 감이 아닌 지표로 품질을 관리하는 방법을 배웠습니다. 또한 DB 마이그레이션부터 컨테이너 배포까지 CI/CD 파이프라인을 구축하며 팀 개발의 배포 흐름을 자동화했습니다.",
   },
   {
+    id: 10,
+    title: "LostOnCampus",
+    subtitle: "다시봄 · 캠퍼스 분실물 센터 (네이버클라우드 아카데미, 프론트엔드)",
+    category: "Team Project / Web",
+    period: "2026.06 ~ 2026.07",
+    stack: ["React", "TypeScript", "Vite", "Docker", "Nginx", "NCP"],
+    githubLink: "https://github.com/LostOnCampus/LOC-FE",
+    image: "/loc-cover.webp",
+    description: [
+      "캠퍼스 분실물·습득물 게시판의 프론트엔드를 단독으로 맡아, Spring 백엔드 팀과 API 명세를 기준으로 병렬 개발",
+      "환경 변수(VITE_API_URL) 유무로 mock ↔ 실제 API를 전환하는 API 계층을 설계해, 백엔드 완성 전 화면을 먼저 만들고 연동 시 페이지 코드 수정 없이 전환",
+      "{ success, message, data } 응답 래퍼 해제와 snake_case / camelCase 필드 정규화를 API 계층 한 곳에서 처리",
+      "게시글 CRUD·처리 상태 변경, 댓글, 키워드 검색, multipart 이미지 업로드, 로그인, 문의 기능 API 연동",
+      "Docker 멀티 스테이지 빌드와 Nginx 정적 서빙, /api 리버스 프록시로 VPC 내부 백엔드 로드밸런서에 연결해 네이버클라우드에 배포",
+    ],
+    troubleshooting: [
+      "한글 입력 시 댓글 중복 등록: 한글 조합 중 Enter를 누르면 keydown이 조합 확정과 함께 한 번 더 처리돼 댓글이 중복 제출되던 문제를, e.nativeEvent.isComposing으로 조합 중 입력을 무시해 해결",
+      "빌드 시점 환경 변수 누락: .dockerignore에 .env가 포함돼 Docker 빌드 단계에서 VITE_API_URL이 주입되지 않아 mock 모드로 배포되던 문제를, Vite 환경 변수는 빌드 시점에 번들에 고정된다는 점을 파악하고 .env를 빌드 컨텍스트에 포함해 해결",
+      "리버스 프록시 경로 불일치: location /api/와 proxy_pass 끝 슬래시 조합 때문에 /api 접두사가 제거된 채 백엔드로 전달되던 설정을, 접두사를 유지하도록 고치고 대상을 공인 IP 대신 VPC 내부 로드밸런서의 사설 IP로 변경",
+      "SPA 새로고침 404: 상세 페이지 URL에서 새로고침하면 Nginx가 해당 경로의 파일을 찾지 못해 404가 나던 문제를 try_files로 index.html fallback을 설정해 해결",
+    ],
+    learning:
+      "네이버클라우드 아카데미에서 짧은 기간 안에 프론트엔드를 맡아 백엔드 팀과 병렬로 개발했습니다. API가 나오기 전부터 mock 데이터로 화면을 완성하고 환경 변수 하나로 실제 API로 전환하는 구조를 설계해, 연동 단계에서 페이지 코드를 거의 건드리지 않고 연결할 수 있었습니다. Docker와 Nginx로 직접 배포하며 리버스 프록시 경로나 빌드 시점 환경 변수처럼 로컬에서는 드러나지 않던 배포 환경의 문제를 해결했고, 한글 입력(IME) 처리처럼 작은 디테일이 사용자 경험을 좌우한다는 것도 배웠습니다.",
+  },
+  {
     id: 3,
     title: "G.O.A.T",
     subtitle: "카카오엔터프라이즈 & 디케이테크인 기업실무 1팀",
