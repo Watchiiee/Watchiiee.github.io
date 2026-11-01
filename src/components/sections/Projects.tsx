@@ -28,22 +28,39 @@ interface Project {
 
 const projects: Project[] = [
   {
-    id: 1,
-    title: "포트폴리오 웹사이트",
-    subtitle: "개인 포트폴리오 및 소개 페이지",
-    category: "Web / Portfolio",
-    period: "2025.12 ~ 진행중",
-    stack: ["TypeScript", "Astro", "Tailwind CSS"],
-    githubLink: "https://github.com/Watchiiee/Watchiiee.github.io",
-    demoLink: "https://watchiiee.github.io/",
+    id: 8,
+    title: "AiAn",
+    subtitle: "전기 분야 민원 자동분류 · RAG 답변 초안 시스템 (1인 풀스택)",
+    category: "Solo Project / Full-Stack / Backend / AI / Web",
+    period: "2026.06 ~ 2026.07",
+    stack: [
+      "FastAPI",
+      "LangGraph",
+      "PostgreSQL",
+      "React",
+      "ChromaDB",
+      "Docker",
+      "NCP",
+      "GitHub Actions",
+    ],
+    githubLink: "https://github.com/Watchiiee/AiAn",
     image: null,
     description: [
-      "Astro 프레임워크를 활용한 고성능 정적 웹사이트 구축",
-      "React 컴포넌트와 Tailwind CSS를 활용한 모던 UI 디자인",
-      "GitHub Actions를 통한 자동 배포 파이프라인 구축",
+      "LangGraph 14개 노드 Adaptive RAG 파이프라인으로 민원 분류 → 부서 배정 → 근거 검색 → 답변 초안 생성 → 할루시네이션 검증까지 자동화",
+      "FastAPI REST API와 JWT(bcrypt) 인증, 3단계 RBAC(general/staff/master) 기반 부서별 검토 큐 및 부서 재배정 승인 흐름 구현",
+      "담당자가 AI 판단 근거를 실시간으로 물어볼 수 있는 SSE 스트리밍 코파일럿 구현",
+      "NCP 3-tier 배포: VPC와 용도별 서브넷 4개, Private 백엔드 + Load Balancer + CPU 기반 Auto Scaling + NAT Gateway + Bastion 구성",
+      "89문항 골든셋으로 실측 평가하여 도메인 분류 정확도 97.8%, 정답 대비 답변 정확성 95.0% 달성",
+      "GitHub Actions 스케줄로 Langfuse 트레이스를 집계해 이상 패턴을 메일로 보고하는 Ops 일일 리포트 자동화",
+    ],
+    troubleshooting: [
+      "도메인 분류 편향: 전문용어가 포함된 기술 질문이 행정으로 오분류되는 패턴을 10회 반복 실행으로 확정하고, 프롬프트 지시와 폴백 키워드를 보강해 정확도를 87.6%에서 97.8%로 개선",
+      "지표 급락 원인 추적: 정확도가 34.8%로 급락한 현상을 코드 버그로 단정하지 않고 원본 오류 로그로 LLM API 분당 요청 한도 초과임을 확정, 오류 유형별 차등 backoff 재시도로 해결",
+      "Private 서브넷 아웃바운드: 공인 IP 없는 백엔드가 외부 DB와 LLM API에 접속하지 못하는 문제를 NAT Gateway와 라우팅 테이블 구성으로 해결",
+      "Auto Scaling 헬스체크: 이미지 복제 후 컨테이너가 자동 기동되지 않는 문제를 restart 정책과 로드밸런서 기반 헬스체크로 해결하고, stress-ng 부하테스트로 2대 → 3대 → 2대 스케일링을 검증",
     ],
     learning:
-      "Astro의 아일랜드 아키텍처를 이해하고, 불필요한 JS 로딩을 줄여 성능을 최적화하는 방법을 익혔습니다.",
+      "기획부터 백엔드, 프론트엔드, 클라우드 인프라까지 혼자 구축하며 서비스 전체 구조를 설계하는 경험을 했습니다. 특히 '논리적으로 타당해 보이는 개선'도 골든셋으로 실측하기 전에는 반영하지 않는 원칙을 세웠고, 실제로 하이브리드 검색은 측정 결과 recall이 떨어져 기각하는 등 데이터로 의사결정하는 습관을 길렀습니다. Private 서브넷, NAT, Auto Scaling을 직접 구성하며 겪은 장애를 통해 인프라가 애플리케이션 동작에 미치는 영향도 깊이 이해하게 되었습니다.",
   },
   {
     id: 2,
@@ -73,6 +90,37 @@ const projects: Project[] = [
 
     learning:
       "프리랜서 외주 개발자로서 클라이언트 요구사항을 분석하고 Figma 시안을 바탕으로 프론트엔드 전반을 독자적으로 구축했습니다. 단순 UI 구현을 넘어, LLM 챗봇 연동과 세밀한 사용자 이벤트 로깅 등 난이도 높은 기능들을 처리하며 프론트엔드의 역할 확장을 경험했습니다. 또한 JWT와 HttpOnly 쿠키를 조합한 안전한 인증 흐름을 설계하며 보안 지식을 쌓았고, AI 어시스턴트를 적극 활용해 복잡한 테이블 렌더링 최적화와 트러블슈팅 시간을 크게 단축했습니다.",
+  },
+  {
+    id: 9,
+    title: "SafetyTrip",
+    subtitle: "재난안전 여행 가이드 AI 에이전트 (2인 팀, 백엔드)",
+    category: "Team Project / Backend / AI",
+    period: "2026.07 ~ 2026.07",
+    stack: [
+      "FastAPI",
+      "LangGraph",
+      "Supabase",
+      "pgvector",
+      "Docker",
+      "GCP",
+      "GitHub Actions",
+    ],
+    githubLink: "https://github.com/SafetyTrip2026/BE",
+    image: null,
+    description: [
+      "행정안전부 긴급재난문자 3개년 53,631건과 국민행동요령 751건을 수집·정제해 Supabase(Postgres + pgvector)에 적재",
+      "LangGraph 에이전트로 질문 파싱 → 지역·시기별 재난 통계 SQL 집계 / 벡터 검색 → 2중 게이트 → 답변 생성 흐름 구현, FastAPI SSE로 스트리밍",
+      "대화 세션 체크포인트로 후속 질문에서 이전 턴의 지역·시기·동반자 맥락을 자동으로 유지",
+      "CI/CD 자동화: PR 시 lint·test, 스키마 변경 시 DB 자동 마이그레이션, Docker 이미지 빌드 → GHCR → GCE 자동 배포 및 헬스체크",
+    ],
+    troubleshooting: [
+      "근거 없는 답변 차단: 벡터 거리 기반 1차 게이트에 LLM 적합성 2차 판정을 추가하고, 자체 평가셋 30건으로 반복 캘리브레이션해 에스컬레이션 판단 F1을 50%에서 73.7%로 개선",
+      "데이터 공백 대응: 표본이 부족한 지역은 상위 행정구역으로 자동 확대하고, 그래도 부족하면 표본 부족을 사용자에게 명시하는 폴백 구현",
+      "LLM 장애 대응: 호출별 30초 timeout, 일시 오류에만 지수 백오프 재시도, 최종 실패 시 행동요령 원문과 연락처로 안전하게 강등하는 3단 방어 구현",
+    ],
+    learning:
+      "안전 도메인에서는 그럴듯한 오답이 실제 위험으로 이어질 수 있기 때문에, '모르면 모른다고 하는' 시스템을 목표로 설계했습니다. 통계는 SQL 집계로, 행동 지침은 공식 문서 인용으로만 답하게 하고 그 판단의 정확도를 precision/recall로 측정하며, 감이 아닌 지표로 품질을 관리하는 방법을 배웠습니다. 또한 DB 마이그레이션부터 컨테이너 배포까지 CI/CD 파이프라인을 구축하며 팀 개발의 배포 흐름을 자동화했습니다.",
   },
   {
     id: 3,
@@ -158,7 +206,7 @@ const projects: Project[] = [
     id: 7,
     title: "Speed Quiz Game",
     subtitle: "컴퓨터 네트워크: 텀 프로젝트",
-    category: "Team Project / Java GUI",
+    category: "Team Project / Backend / Java GUI",
     period: "2024.11 ~ 2024.12",
     stack: ["Java", "Java Swing"],
     githubLink: "https://github.com/Watchiiee/Network_TermProject",
@@ -171,9 +219,37 @@ const projects: Project[] = [
     learning:
       "웹이 아닌 TCP/IP 소켓 통신을 직접 구현해보며 네트워크 3-4 계층의 흐름과 패킷 통신에 대한 깊은 이해를 얻었습니다.",
   },
+  {
+    id: 1,
+    title: "포트폴리오 웹사이트",
+    subtitle: "개인 포트폴리오 및 소개 페이지",
+    category: "Web / Portfolio",
+    period: "2025.12 ~ 진행중",
+    stack: ["TypeScript", "Astro", "Tailwind CSS", "Three.js"],
+    githubLink: "https://github.com/Watchiiee/Watchiiee.github.io",
+    demoLink: "https://watchiiee.github.io/",
+    image: null,
+    description: [
+      "Astro 프레임워크를 활용한 고성능 정적 웹사이트 구축",
+      "React 컴포넌트와 Tailwind CSS를 활용한 모던 UI 디자인",
+      "Three.js 셰이더 기반 파티클 배경을 Hero에만 아일랜드로 분리해 로드",
+      "GitHub Actions를 통한 자동 배포 파이프라인 구축",
+    ],
+    learning:
+      "Astro의 아일랜드 아키텍처를 이해하고, 불필요한 JS 로딩을 줄여 성능을 최적화하는 방법을 익혔습니다.",
+  },
 ];
 
-const categories = ["All", "Web", "Team Project", "Freelance", "Java"];
+const categories = [
+  "All",
+  "Full-Stack",
+  "Backend",
+  "AI",
+  "Web",
+  "Team Project",
+  "Freelance",
+  "Java",
+];
 
 export default function Projects() {
   const [selectedId, setSelectedId] = useState<number | null>(null);
@@ -429,7 +505,10 @@ export default function Projects() {
                       </h4>
                       <ul className="space-y-3">
                         {selectedProject.troubleshooting.map((issue, i) => {
-                          const [title, content] = issue.split(":"); // 콜론을 기준으로 제목과 내용 분리
+                          // 첫 번째 콜론을 기준으로 제목과 내용 분리 (내용 안의 콜론은 유지)
+                          const sep = issue.indexOf(":");
+                          const title = sep > -1 ? issue.slice(0, sep) : issue;
+                          const content = sep > -1 ? issue.slice(sep + 1).trim() : "";
                           return (
                             <li
                               key={i}

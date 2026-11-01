@@ -1,30 +1,38 @@
-import { Monitor, Code2, Palette } from "lucide-react";
+import { Code2, Server, Cloud, BrainCircuit } from "lucide-react";
 import CodeBackground from "@/components/ui/CodeBackground";
 
 const expertiseData = [
   {
-    icon: <Monitor className="w-10 h-10 mb-4 text-pink-500" />,
-    title: "Software Development",
-    underlineColor: "bg-pink-500",
-    skills: "Python, Java, JavaScript, TypeScript",
-    description:
-      "다양한 언어를 통해 견고한 로직을 설계하며, 백엔드와 프론트엔드를 아우르는 소프트웨어 개발 역량을 갖추고 있습니다.",
-  },
-  {
     icon: <Code2 className="w-10 h-10 mb-4 text-blue-500" />,
-    title: "Frontend Dev",
+    title: "Frontend",
     underlineColor: "bg-blue-500",
-    skills: "React, Vite, Next.js, Astro",
+    skills: "React, TypeScript, Zustand, Tailwind CSS",
     description:
-      "React 생태계와 최신 모던 웹 프레임워크를 활용하여, 빠르고 사용자 친화적인 웹 애플리케이션을 구축합니다.",
+      "React와 TypeScript로 인증 흐름, 상태 관리, 데이터 시각화까지 실서비스 수준의 웹 애플리케이션을 구축합니다.",
   },
   {
-    icon: <Palette className="w-10 h-10 mb-4 text-orange-500" />,
-    title: "Web Design",
-    underlineColor: "bg-orange-500",
-    skills: "CSS3, Figma, TailwindCSS",
+    icon: <Server className="w-10 h-10 mb-4 text-pink-500" />,
+    title: "Backend",
+    underlineColor: "bg-pink-500",
+    skills: "Python, FastAPI, PostgreSQL, Java",
     description:
-      "단순한 구현을 넘어, Figma를 활용한 UI 설계와 TailwindCSS를 통한 감각적인 디자인 시스템을 구현합니다.",
+      "FastAPI로 REST·SSE API를 설계하고, JWT 인증과 RBAC 권한 체계, PostgreSQL 기반 데이터 모델링을 구현합니다.",
+  },
+  {
+    icon: <Cloud className="w-10 h-10 mb-4 text-orange-500" />,
+    title: "Cloud & DevOps",
+    underlineColor: "bg-orange-500",
+    skills: "NCP, GCP, Docker, GitHub Actions",
+    description:
+      "VPC, Load Balancer, Auto Scaling 기반 인프라를 구성하고 Docker와 GitHub Actions로 빌드부터 배포까지 자동화합니다.",
+  },
+  {
+    icon: <BrainCircuit className="w-10 h-10 mb-4 text-emerald-500" />,
+    title: "AI · LLM",
+    underlineColor: "bg-emerald-500",
+    skills: "LangGraph, RAG, pgvector, Langfuse",
+    description:
+      "LangGraph 기반 RAG 파이프라인을 설계하고, 자체 평가셋으로 정확도를 실측하며 개선합니다.",
   },
 ];
 
@@ -47,7 +55,7 @@ export default function Expertise() {
         </div>
 
         {/* 3단 그리드 카드 영역 */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {expertiseData.map((item, index) => (
             <div
               key={index}
