@@ -244,6 +244,33 @@ const projects: Project[] = [
     githubLink: "https://github.com/KE-WhyNot",
     demoLink: "https://www.youth-fi.com",
     image: "/youthfi.png",
+    detailImage: "/youthfi/invest.webp",
+    gallery: [
+      {
+        src: "/youthfi/home.webp",
+        caption: "홈: 청년정책·예적금·포트폴리오 요약",
+      },
+      {
+        src: "/youthfi/policy.webp",
+        caption: "청년정책 검색: 분야·퍼스널 정보 필터와 마감순 정렬",
+      },
+      {
+        src: "/youthfi/savings.webp",
+        caption: "예·적금: 기간·상품유형·우대조건 필터 검색",
+      },
+      {
+        src: "/youthfi/invest.webp",
+        caption: "모의투자 대시보드: 지수 차트·보유 종목·거래 내역 (사용자 ID 마스킹)",
+      },
+      {
+        src: "/youthfi/portfolio.webp",
+        caption: "포트폴리오 추천: 자산 배분 차트와 AI 분석",
+      },
+      {
+        src: "/youthfi/chatbot.webp",
+        caption: "AI 챗봇: 주가 조회·뉴스 요약·투자 분석",
+      },
+    ],
     description: [
       "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
       "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
