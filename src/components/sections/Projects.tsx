@@ -289,13 +289,51 @@ const projects: Project[] = [
     stack: ["React", "JavaScript", "CSS3"],
     githubLink: "https://github.com/Watchiiee/UNISWAP",
     image: "/uniswap.png",
+    detailImage: "/uniswap/home.webp",
+    gallery: [
+      {
+        src: "/uniswap/auth.webp",
+        caption: "로그인·회원가입: 학번·학교·학과 기반 대학생 가입",
+      },
+      {
+        src: "/uniswap/home.webp",
+        caption: "홈: 카테고리별 상품 목록",
+      },
+      {
+        src: "/uniswap/search.webp",
+        caption: "검색 필터: 카테고리·가격 범위 조건 검색",
+      },
+      {
+        src: "/uniswap/detail.webp",
+        caption: "상품 상세: 판매자 정보·채팅·찜 (판매자 정보 마스킹)",
+      },
+      {
+        src: "/uniswap/register.webp",
+        caption: "상품 등록: 지도 기반 거래장소 선택",
+      },
+      { src: "/uniswap/wishlist.webp", caption: "찜한 상품 목록" },
+      {
+        src: "/uniswap/reviews.webp",
+        caption: "거래 후기: 받은 리뷰 조회와 별점 후기 작성",
+      },
+      {
+        src: "/uniswap/report.webp",
+        caption: "신고하기: 사기·스팸 등 사유별 신고",
+      },
+    ],
     description: [
       "대학생 인증 기반의 폐쇄형 커뮤니티 기능",
       "게시판 CRUD 및 실시간 검색 기능 구현",
       "React Hooks를 활용한 컴포넌트 로직 분리",
     ],
+    troubleshooting: [
+      "빌드 환경 통합: 팀원은 CRA, 저는 Vite로 개발을 시작해 develop 병합 시 package.json과 진입 파일(index.html·main.jsx / public/index.html·index.js)이 충돌, 팀 기준인 CRA 설정으로 통합하고 제 코드의 진입점과 스크립트를 맞춰 해결",
+      "카카오맵 SDK 로드 실패: 통합 후 거래장소 지도가 표시되지 않는 문제를 CRA의 진입 HTML이 public/index.html이라 SDK 스크립트가 로드되지 않았던 것으로 파악, 스크립트 위치를 옮기고 실행 환경 도메인에 등록된 앱 키로 교체해 해결",
+      "인포윈도우 중복 표시: 마커를 클릭할 때마다 이전 인포윈도우가 닫히지 않고 쌓이는 문제를 useRef로 인포윈도우 목록을 관리해, 클릭 시 모두 닫은 뒤 선택한 장소만 열리도록 개선",
+      "이미지 경로 충돌: 병합 과정에서 public과 src에 흩어져 있던 프로필 이미지 경로가 충돌해, src/assets로 옮기고 import 방식으로 통일",
+    ],
     learning:
-      "웹 프로그래밍 수업을 통해 React의 생명주기와 Hooks의 원리를 깊이 있게 이해하게 되었습니다.",
+      "웹 프로그래밍 수업에서 처음으로 팀을 이뤄 서비스를 끝까지 만들어 본 프로젝트로, 제가 웹 개발에 재미를 느끼게 된 계기입니다. 화면을 컴포넌트 단위로 나누고 상태가 바뀌면 UI가 바로 반응하는 React의 방식이 흥미로웠고, 카카오맵 SDK를 붙여 실제 캠퍼스 거래 장소를 고르는 기능이 처음 동작했을 때 큰 성취감을 느꼈습니다. 또한 이 프로젝트에서 Git Flow 전략을 처음 배웠습니다. main과 develop, 기능별 feature 브랜치를 나누고 PR로 develop에 병합하는 흐름을 따르며, 각자 작업을 독립적으로 진행하면서도 안정적인 코드만 합쳐지도록 관리하는 방법을 익혔습니다. 그 과정에서 빌드 환경과 파일 경로 충돌을 직접 해결하며, 코드를 작성하는 것만큼 팀이 같은 환경에서 일할 수 있도록 맞추는 일이 중요하다는 것을 배웠습니다. 지금 다시 보면 지도 컴포넌트의 useEffect가 부모가 렌더링될 때마다 다시 실행될 수 있는 구조처럼 아쉬운 부분도 보이는데, 예전 코드의 개선점이 보인다는 것 자체가 그동안 성장했다는 증거라고 생각합니다.",
   },
   {
     id: 6,
