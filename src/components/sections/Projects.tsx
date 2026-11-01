@@ -298,10 +298,38 @@ export default function Projects() {
 
   const selectedProject = projects.find((p) => p.id === selectedId);
   const gallery = selectedProject?.gallery ?? [];
-  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  // 확대 보기: open=false가 되면 닫힘 트랜지션을 재생하고, 완전히 투명해진 뒤 null로 제거
+  const [lightbox, setLightbox] = useState<{
+    index: number;
+    open: boolean;
+  } | null>(null);
+
+  // 처음 렌더링된 투명한 상태를 브라우저가 그린 다음 프레임에 visible로 바꿔야 페이드인이 적용됨
+  const [lightboxEntered, setLightboxEntered] = useState(false);
+  useEffect(() => {
+    if (!lightbox?.open) {
+      setLightboxEntered(false);
+      return;
+    }
+    const frame = requestAnimationFrame(() => setLightboxEntered(true));
+    return () => cancelAnimationFrame(frame);
+  }, [lightbox?.open]);
+  const lightboxVisible = !!lightbox?.open && lightboxEntered;
+
+  const openLightbox = (index: number) => setLightbox({ index, open: true });
+  const closeLightbox = () =>
+    setLightbox((prev) => prev && { ...prev, open: false });
+  const moveLightbox = (step: number) =>
+    setLightbox(
+      (prev) =>
+        prev && {
+          index: (prev.index + step + gallery.length) % gallery.length,
+          open: true,
+        }
+    );
 
   const closeModal = () => {
-    setLightboxIndex(null);
+    setLightbox(null);
     setSelectedId(null);
   };
 
@@ -309,21 +337,17 @@ export default function Projects() {
   useEffect(() => {
     if (!selectedId) return;
     const onKeyDown = (e: KeyboardEvent) => {
-      if (lightboxIndex !== null) {
-        if (e.key === "Escape") setLightboxIndex(null);
-        if (e.key === "ArrowRight")
-          setLightboxIndex((lightboxIndex + 1) % gallery.length);
-        if (e.key === "ArrowLeft")
-          setLightboxIndex(
-            (lightboxIndex - 1 + gallery.length) % gallery.length
-          );
+      if (lightbox?.open) {
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowRight") moveLightbox(1);
+        if (e.key === "ArrowLeft") moveLightbox(-1);
       } else if (e.key === "Escape") {
         closeModal();
       }
     };
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [selectedId, lightboxIndex, gallery.length]);
+  }, [selectedId, lightbox?.open, gallery.length]);
 
   const filteredProjects = projects.filter((project) => {
     if (activeCategory === "All") return true;
@@ -632,7 +656,7 @@ export default function Projects() {
                           <button
                             key={shot.src}
                             type="button"
-                            onClick={() => setLightboxIndex(i)}
+                            onClick={() => openLightbox(i)}
                             className="group/shot text-left"
                           >
                             <div className="aspect-video rounded-lg overflow-hidden bg-slate-800/60 border border-slate-700 group-hover/shot:border-cyan-400 transition-colors">
@@ -671,70 +695,83 @@ export default function Projects() {
         )}
       </AnimatePresence>
 
-      {/* 스크린샷 확대 보기 (모달 위에 표시) */}
-      <AnimatePresence>
-        {lightboxIndex !== null && gallery[lightboxIndex] && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[300] flex items-center justify-center p-4 md:p-12 bg-black/90"
-            onClick={() => setLightboxIndex(null)}
+      {/* 스크린샷 확대 보기 (모달 위에 표시)
+          - 배경과 사진이 함께 페이드되면 반투명한 사진 뒤로 모달 글자가 비쳐 깜빡여 보이므로,
+            열 때는 배경 → 사진, 닫을 때는 사진 → 배경 순서로 나눠서 페이드
+          - framer-motion(WAAPI)은 애니메이션 종료 시 한 프레임 동안 시작 값으로 돌아가 깜빡이므로
+            CSS transition으로 처리하고, 배경 페이드아웃이 끝난 뒤(transitionend) 제거 */}
+      {lightbox && gallery[lightbox.index] && (
+        <div
+          onTransitionEnd={(e) => {
+            if (
+              e.target === e.currentTarget &&
+              e.propertyName === "opacity" &&
+              !lightbox.open
+            )
+              setLightbox(null);
+          }}
+          className={`fixed inset-0 z-[300] flex items-center justify-center p-4 md:p-12 bg-[#020617] transition-opacity duration-150 ${
+            lightboxVisible
+              ? "opacity-100 ease-out"
+              : "opacity-0 ease-in delay-[120ms] pointer-events-none"
+          }`}
+          onClick={closeLightbox}
+        >
+          <button
+            onClick={closeLightbox}
+            aria-label="확대 보기 닫기"
+            className="absolute top-4 right-4 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
           >
-            <button
-              onClick={() => setLightboxIndex(null)}
-              aria-label="확대 보기 닫기"
-              className="absolute top-4 right-4 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            <X className="w-6 h-6" />
+          </button>
 
-            {gallery.length > 1 && (
-              <>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLightboxIndex(
-                      (lightboxIndex - 1 + gallery.length) % gallery.length
-                    );
-                  }}
-                  aria-label="이전 이미지"
-                  className="absolute left-2 md:left-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
-                >
-                  <ChevronLeft className="w-6 h-6" />
-                </button>
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setLightboxIndex((lightboxIndex + 1) % gallery.length);
-                  }}
-                  aria-label="다음 이미지"
-                  className="absolute right-2 md:right-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
-                >
-                  <ChevronRight className="w-6 h-6" />
-                </button>
-              </>
-            )}
+          {gallery.length > 1 && (
+            <>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveLightbox(-1);
+                }}
+                aria-label="이전 이미지"
+                className="absolute left-2 md:left-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
+              >
+                <ChevronLeft className="w-6 h-6" />
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  moveLightbox(1);
+                }}
+                aria-label="다음 이미지"
+                className="absolute right-2 md:right-6 p-2 bg-slate-800/60 hover:bg-slate-700 rounded-full text-white transition-colors"
+              >
+                <ChevronRight className="w-6 h-6" />
+              </button>
+            </>
+          )}
 
-            <figure
-              className="flex flex-col items-center max-w-5xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <img
-                src={gallery[lightboxIndex].src}
-                alt={gallery[lightboxIndex].caption}
-                className="max-h-[78vh] max-w-full object-contain rounded-lg shadow-2xl"
-              />
-              <figcaption className="mt-4 text-sm text-slate-300 text-center break-keep">
-                <span className="font-mono text-cyan-400 mr-2">
-                  {lightboxIndex + 1} / {gallery.length}
-                </span>
-                {gallery[lightboxIndex].caption}
-              </figcaption>
-            </figure>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          <figure
+            className={`flex flex-col items-center max-w-5xl transition-[opacity,transform] ${
+              lightboxVisible
+                ? "opacity-100 scale-100 duration-200 delay-150 ease-out"
+                : "opacity-0 scale-[0.96] duration-[120ms] ease-in"
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={gallery[lightbox.index].src}
+              alt={gallery[lightbox.index].caption}
+              className="max-h-[78vh] max-w-full object-contain rounded-lg shadow-2xl"
+            />
+            <figcaption className="mt-4 text-sm text-slate-300 text-center break-keep">
+              <span className="font-mono text-cyan-400 mr-2">
+                {lightbox.index + 1} / {gallery.length}
+              </span>
+              {gallery[lightbox.index].caption}
+            </figcaption>
+          </figure>
+        </div>
+      )}
     </section>
   );
 }
