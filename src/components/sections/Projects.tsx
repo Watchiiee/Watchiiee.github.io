@@ -196,6 +196,35 @@ const projects: Project[] = [
     githubLink: "https://github.com/Watchiiee/G.O.A.T",
     demoLink: "https://haezocorp.space/",
     image: "/HAEZO.png",
+    detailImage: "/goat/dashboard.webp",
+    gallery: [
+      {
+        src: "/goat/login.webp",
+        caption: "로그인: 서버 연결 상태 표시 (Offline 시 게임 제공)",
+      },
+      { src: "/goat/signup.webp", caption: "마스터 회원가입: 2단계 이메일 인증" },
+      {
+        src: "/goat/dashboard.webp",
+        caption: "대시보드: 질의량 추이·응답 유형 KPI 시각화",
+      },
+      {
+        src: "/goat/documents.webp",
+        caption: "문서 관리: 부서별 문서 업로드·승인 상태 관리",
+      },
+      { src: "/goat/faq.webp", caption: "FAQ 관리: 부서별 FAQ CRUD와 AI 추천" },
+      {
+        src: "/goat/organization.webp",
+        caption: "조직 관리: Canvas 조직도와 구성원 관리",
+      },
+      {
+        src: "/goat/history.webp",
+        caption: "이력 관리: 관리자 활동·에러 로그 기록",
+      },
+      {
+        src: "/goat/mypage.webp",
+        caption: "마이페이지: 프로필·권한 확인 (이메일 마스킹)",
+      },
+    ],
     description: [
       "RBAC(Master/Admin/User) 권한 시스템 및 JWT(Access/Refresh) 기반의 보안 로그인/인터셉터 구현",
       "KPI 지표 시각화(Line/Bar/Pie) 및 서버 연결 실패 시 오프라인 게임(Flappy Bird) 제공",
