@@ -39,9 +39,11 @@ export default function Expertise() {
 
       <div className="container mx-auto px-6 relative z-10">
         {/* 섹션 제목 */}
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold mb-4">My Expertise</h2>
-          <p className="text-slate-400">제가 가진 기술과 경험을 소개합니다.</p>
+        <div className="mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold mb-6">My Expertise</h2>
+          <p className="text-slate-400 max-w-2xl text-lg leading-relaxed">
+            제가 가진 기술과 경험을 소개합니다.
+          </p>
         </div>
 
         {/* 3단 그리드 카드 영역 */}

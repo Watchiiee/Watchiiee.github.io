@@ -1,0 +1,63 @@
+---
+// src/components/sections/Contact.astro
+import { User, GraduationCap, Mail, Github } from "lucide-react";
+
+const contacts = [
+  { icon: User, label: "Name", value: "정명성" },
+  {
+    icon: GraduationCap,
+    label: "Education",
+    value: "가천대학교 IT융합대학 AI·소프트웨어학부 소프트웨어전공",
+  },
+  {
+    icon: Mail,
+    label: "Email",
+    value: "op7970@gmail.com",
+    href: "mailto:op7970@gmail.com",
+  },
+  {
+    icon: Github,
+    label: "GitHub",
+    value: "github.com/Watchiiee",
+    href: "https://github.com/Watchiiee",
+  },
+];
+---
+
+<section id="contact" class="py-24 bg-[#0a192f] text-white">
+  <div class="container mx-auto px-6">
+    <div class="mb-16">
+      <h2 class="text-4xl md:text-5xl font-bold mb-6">Contact</h2>
+      <p class="text-slate-400 max-w-2xl text-lg leading-relaxed break-keep">
+        함께 일할 기회나 궁금한 점이 있다면 편하게 연락주세요.
+      </p>
+    </div>
+
+    <ul class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {
+        contacts.map(({ icon: Icon, label, value, href }) => (
+          <li class="flex items-start gap-4 p-6 border border-slate-700 bg-[#112240]/50 hover:border-slate-500 transition-colors">
+            <Icon className="w-6 h-6 text-cyan-400 shrink-0 mt-0.5" />
+            <div class="min-w-0">
+              <span class="block text-slate-400 text-xs font-mono mb-1">
+                {label}
+              </span>
+              {href ? (
+                <a
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noreferrer" : undefined}
+                  class="text-cyan-400 hover:underline break-all"
+                >
+                  {value}
+                </a>
+              ) : (
+                <span class="text-slate-200 break-keep">{value}</span>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+</section>

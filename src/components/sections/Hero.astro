@@ -1,0 +1,67 @@
+---
+// src/components/sections/Hero.astro
+// 텍스트는 정적 HTML로 렌더링하고, 3D 배경(ParticleWave)만 클라이언트에서 로드
+import ParticleWave from "@/components/ParticleWave";
+import ScrollIndicator from "@/components/ScrollIndicator";
+---
+
+<section
+  id="hero"
+  class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a192f] text-white"
+>
+  <ParticleWave client:only="react" />
+
+  {/* 텍스트 가독성을 위한 중앙 비네팅 + 다음 섹션으로 자연스럽게 이어지는 하단 그라데이션 */}
+  <div
+    class="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(10,25,47,0.8)_0%,rgba(10,25,47,0)_65%)]"
+  >
+  </div>
+  <div
+    class="pointer-events-none absolute inset-x-0 bottom-0 h-48 bg-gradient-to-b from-transparent to-[#0a192f]"
+  >
+  </div>
+
+  <div class="relative z-10 container mx-auto px-6 text-center">
+    <h1
+      class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-4 uppercase"
+    >
+      Jung MyeongSeong
+    </h1>
+    <h2
+      class="text-xl md:text-2xl font-semibold text-cyan-400 mb-8 tracking-[0.2em] uppercase"
+    >
+      Front-End Developer
+    </h2>
+    <p
+      class="text-slate-300 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-10 break-keep"
+    >
+      실서비스 외주 개발 경험을 바탕으로,<br class="hidden md:block" />
+      사용자 경험 전반을 고민하는 프론트엔드 개발자입니다.
+    </p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a
+        href="#projects"
+        class="px-6 py-3 rounded-full bg-cyan-400 text-[#0a192f] font-semibold hover:bg-cyan-300 transition-colors"
+      >
+        프로젝트 보기
+      </a>
+      <a
+        href="#expertise"
+        class="px-6 py-3 rounded-full border border-slate-500 text-slate-200 font-semibold hover:border-cyan-400 hover:text-cyan-400 transition-colors"
+      >
+        My Expertise
+      </a>
+      <a
+        href="https://github.com/Watchiiee"
+        target="_blank"
+        rel="noreferrer"
+        class="px-6 py-3 rounded-full border border-slate-500 text-slate-200 font-semibold hover:border-cyan-400 hover:text-cyan-400 transition-colors"
+      >
+        GitHub
+      </a>
+    </div>
+  </div>
+
+  <ScrollIndicator />
+</section>

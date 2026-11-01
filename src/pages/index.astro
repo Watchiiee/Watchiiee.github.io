@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import Logo from '@/components/Logo';
-import Hero from '@/components/sections/Hero';
+import Hero from '@/components/sections/Hero.astro';
 import Expertise from '@/components/sections/Expertise';
 import Projects from '@/components/sections/Projects';
+import Contact from '@/components/sections/Contact.astro';
 import '@/styles/global.css';
 ---
 
@@ -14,6 +15,7 @@ import '@/styles/global.css';
     <Hero />
     <Expertise client:visible />
     <Projects client:visible />
+    <Contact />
   </main>
   
   <footer class="py-10 text-center text-gray-500 text-sm border-t border-gray-800 bg-[#0a192f]">
