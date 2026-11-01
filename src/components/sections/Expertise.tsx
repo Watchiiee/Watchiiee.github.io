@@ -6,7 +6,7 @@ const expertiseData = [
     icon: <Code2 className="w-10 h-10 mb-4 text-blue-500" />,
     title: "Frontend",
     underlineColor: "bg-blue-500",
-    skills: "React, TypeScript, Zustand, Tailwind CSS",
+    skills: "React, Next.js, TypeScript, Zustand, Tailwind CSS",
     description:
       "React와 TypeScript로 인증 흐름, 상태 관리, 데이터 시각화까지 실서비스 수준의 웹 애플리케이션을 구축합니다.",
   },
