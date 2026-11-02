@@ -28,6 +28,7 @@ interface Project {
   stack: string[];
   githubLink?: string;
   demoLink?: string;
+  demoNote?: string;
   image: string | null;
   imageFit?: "cover" | "contain"; // 로고처럼 잘리면 안 되는 대표 이미지는 contain
   detailImage?: string; // 상세 모달에서 대표 이미지 대신 보여줄 서비스 화면
@@ -258,7 +259,8 @@ const projects: Project[] = [
       "Canvas",
     ],
     githubLink: "https://github.com/Watchiiee/G.O.A.T",
-    demoLink: "https://haezocorp.space/",
+    demoLink: "https://goat-topaz.vercel.app/",
+    demoNote: "백엔드 서버가 종료되어 화면만 확인할 수 있고, 로그인 등 실제 기능은 동작하지 않습니다.",
     image: "/HAEZO.png",
     detailImage: "/goat/dashboard.webp",
     gallery: [
@@ -289,7 +291,8 @@ const projects: Project[] = [
     period: "2025.09 ~ 2025.10",
     stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
     githubLink: "https://github.com/KE-WhyNot",
-    demoLink: "https://www.youth-fi.com",
+    demoLink: "https://fe-two-inky.vercel.app/",
+    demoNote: "백엔드 서버가 종료되어 화면만 확인할 수 있고, 데이터 조회 등 실제 기능은 동작하지 않습니다.",
     image: "/youthfi.png",
     detailImage: "/youthfi/invest.webp",
     gallery: [
@@ -728,6 +731,11 @@ export default function Projects() {
                         </a>
                       )}
                     </div>
+                  )}
+                  {selectedProject.demoNote && (
+                    <p className="mt-3 text-xs text-slate-500 leading-relaxed break-keep">
+                      {selectedProject.demoNote}
+                    </p>
                   )}
                 </div>
 
