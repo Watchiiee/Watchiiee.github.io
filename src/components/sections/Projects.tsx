@@ -5,19 +5,24 @@ import {
   X,
   Github,
   ExternalLink,
-  Calendar,
-  Layers,
-  Code2,
-  Wrench, // 트러블슈팅 아이콘 추가
-  Images,
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+
+// 트러블슈팅: 원인·결과를 따로 적을 게 없으면 생략
+interface Trouble {
+  title: string;
+  problem: string;
+  cause?: string;
+  solution: string;
+  result?: string;
+}
 
 interface Project {
   id: number;
   title: string;
   subtitle: string;
+  role?: string;
   category: string;
   period: string;
   stack: string[];
@@ -26,9 +31,9 @@ interface Project {
   image: string | null;
   imageFit?: "cover" | "contain"; // 로고처럼 잘리면 안 되는 대표 이미지는 contain
   detailImage?: string; // 상세 모달에서 대표 이미지 대신 보여줄 서비스 화면
-  gallery?: { src: string; caption: string }[]; // 상세 모달 Screenshots 섹션 (클릭 시 확대)
+  gallery?: { src: string; caption: string }[]; // 상세 모달 화면 섹션 (클릭 시 확대)
   description: string[];
-  troubleshooting?: string[]; // 트러블슈팅 항목 추가 (선택 사항)
+  troubleshooting?: Trouble[];
   learning: string;
 }
 
@@ -36,7 +41,8 @@ const projects: Project[] = [
   {
     id: 8,
     title: "AiAn",
-    subtitle: "전기 분야 민원 자동분류 · RAG 답변 초안 시스템 (1인 풀스택)",
+    subtitle: "전기 분야 민원을 분류하고 답변 초안을 써 주는 시스템",
+    role: "1인 개발 (기획 · 백엔드 · 프론트엔드 · 인프라)",
     category: "Solo Project / Full-Stack / Backend / AI / Web",
     period: "2026.06 ~ 2026.07",
     stack: [
@@ -53,104 +59,128 @@ const projects: Project[] = [
     image: "/aian/cover.webp",
     detailImage: "/aian/review.webp",
     gallery: [
-      { src: "/aian/inquiry.webp", caption: "민원인 문의 작성" },
-      { src: "/aian/submitted.webp", caption: "문의 접수 및 번호 발급" },
+      { src: "/aian/inquiry.webp", caption: "민원인이 문의를 작성하는 화면" },
+      { src: "/aian/submitted.webp", caption: "접수 완료와 문의 번호 안내" },
       {
         src: "/aian/review.webp",
-        caption: "담당자 검토: AI 분류·확신도·부서 배정과 답변 초안",
+        caption: "담당자 검토 화면 (분류 결과, 확신도, 답변 초안)",
       },
       {
         src: "/aian/evidence.webp",
-        caption: "RAG 근거 문서: 답변에 사용된 문서와 참고 문서 구분",
+        caption: "답변에 쓴 근거 문서와 참고만 한 문서",
       },
-      {
-        src: "/aian/copilot.webp",
-        caption: "AI 코파일럿 질의와 승인된 최종 답변",
-      },
-      {
-        src: "/aian/pipeline.webp",
-        caption: "LangGraph 파이프라인: 재검색·재생성 루프",
-      },
-      {
-        src: "/aian/architecture.webp",
-        caption: "NCP 배포 아키텍처: Private 백엔드, LB, Auto Scaling, NAT",
-      },
+      { src: "/aian/copilot.webp", caption: "코파일럿 질문과 승인된 답변" },
+      { src: "/aian/pipeline.webp", caption: "LangGraph 처리 흐름" },
+      { src: "/aian/architecture.webp", caption: "네이버클라우드 배포 구조" },
     ],
     description: [
-      "LangGraph 14개 노드 Adaptive RAG 파이프라인으로 민원 분류 → 부서 배정 → 근거 검색 → 답변 초안 생성 → 할루시네이션 검증까지 자동화",
-      "FastAPI REST API와 JWT(bcrypt) 인증, 3단계 RBAC(general/staff/master) 기반 부서별 검토 큐 및 부서 재배정 승인 흐름 구현",
-      "담당자가 AI 판단 근거를 실시간으로 물어볼 수 있는 SSE 스트리밍 코파일럿 구현",
-      "NCP 3-tier 배포: VPC와 용도별 서브넷 4개, Private 백엔드 + Load Balancer + CPU 기반 Auto Scaling + NAT Gateway + Bastion 구성",
-      "89문항 골든셋으로 실측 평가하여 도메인 분류 정확도 97.8%, 정답 대비 답변 정확성 95.0% 달성",
-      "GitHub Actions 스케줄로 Langfuse 트레이스를 집계해 이상 패턴을 메일로 보고하는 Ops 일일 리포트 자동화",
+      "민원이 들어오면 분류, 부서 배정, 근거 문서 검색, 답변 초안 작성, 검증까지 이어지는 흐름을 LangGraph로 만들었습니다.",
+      "AI가 답변을 바로 보내지 않고, 담당자가 초안과 근거를 확인한 뒤 승인하도록 설계했습니다.",
+      "FastAPI로 API를 만들고 JWT 로그인과 3단계 권한을 붙였습니다. 담당자는 자기 부서 민원만 보고, 부서 변경은 관리자가 승인합니다.",
+      "담당자가 'AI가 왜 이 문서를 골랐는지' 물어볼 수 있는 코파일럿을 SSE 스트리밍으로 만들었습니다.",
+      "네이버클라우드에 VPC를 만들고 백엔드를 Private 서브넷에 둔 뒤, 로드밸런서와 Auto Scaling, NAT Gateway, Bastion을 붙여 배포했습니다.",
+      "89문항 평가셋을 직접 만들어 측정했고, 도메인 분류 97.8%, 정답 대비 답변 정확도 95.0%가 나왔습니다.",
     ],
     troubleshooting: [
-      "도메인 분류 편향: 전문용어가 포함된 기술 질문이 행정으로 오분류되는 패턴을 10회 반복 실행으로 확정하고, 프롬프트 지시와 폴백 키워드를 보강해 정확도를 87.6%에서 97.8%로 개선",
-      "지표 급락 원인 추적: 정확도가 34.8%로 급락한 현상을 코드 버그로 단정하지 않고 원본 오류 로그로 LLM API 분당 요청 한도 초과임을 확정, 오류 유형별 차등 backoff 재시도로 해결",
-      "Private 서브넷 아웃바운드: 공인 IP 없는 백엔드가 외부 DB와 LLM API에 접속하지 못하는 문제를 NAT Gateway와 라우팅 테이블 구성으로 해결",
-      "Auto Scaling 헬스체크: 이미지 복제 후 컨테이너가 자동 기동되지 않는 문제를 restart 정책과 로드밸런서 기반 헬스체크로 해결하고, stress-ng 부하테스트로 2대 → 3대 → 2대 스케일링을 검증",
+      {
+        title: "반복 실행으로 분류 편향의 원인 확정",
+        problem:
+          "전문용어가 들어간 기술 질문 일부가 행정 민원으로 분류됐습니다. LLM은 같은 질문에도 답이 흔들릴 수 있어서, 우연인지 실제 결함인지부터 가려야 했습니다.",
+        cause:
+          "같은 질문을 10번씩 돌려 10번 모두 틀리는 것을 보고 결함으로 확정했습니다. 원인은 두 단계였습니다. 모델이 분류 대신 설명부터 써서 JSON 파싱이 실패했고, 그때 쓰는 대체 키워드 목록에 'CT', '절연저항' 같은 용어가 없어 기본값인 행정으로 떨어졌습니다.",
+        solution:
+          "'설명하지 말고 분류만 하라'는 지시를 넣고, 실패 사례에서 나온 용어로 키워드를 보강했습니다.",
+        result:
+          "도메인 분류 정확도 87.6% → 97.8% (89문항 평가셋). 이후 반복 실행으로 노이즈와 결함을 구분하는 것을 검증 절차로 정했습니다.",
+      },
+      {
+        title: "지표 급락을 코드 탓으로 단정하지 않기",
+        problem:
+          "위 수정을 다시 검증하자 카테고리 정확도가 86.5%에서 34.8%로 떨어졌습니다. 방금 바꾼 코드가 원인처럼 보였습니다.",
+        cause:
+          "평가 스크립트가 감추던 원본 오류를 출력해 보니, LLM API의 분당 요청 한도 초과였습니다. 89문항을 쉬지 않고 문항마다 두 번씩 호출하는 구조가 한도를 넘겼습니다.",
+        solution:
+          "요청 사이에 간격을 두고, 한도 초과는 길게, 그 외 일시 오류는 짧게 기다렸다 다시 시도하도록 오류 유형별로 나눴습니다.",
+        result:
+          "재측정에서 의도한 지표만 오르고 나머지는 원래 수치로 돌아온 것을 확인했습니다.",
+      },
+      {
+        title: "측정해 보니 나빠진 개선안은 버리기",
+        problem:
+          "영문 약어나 표준명이 임베딩 검색에서 밀리는 문제를 보완하려고 BM25 키워드 검색을 섞는 하이브리드 검색을 만들었습니다. 논리적으로는 좋아질 것 같았습니다.",
+        solution:
+          "평가셋으로 비교하니 recall이 97.2%에서 94.4%로 오히려 떨어져, 기본값에서 빼고 옵션으로만 남겼습니다. 같은 기준으로 복합 질문 분해 기능도 파이프라인에 붙이기 전 단독 측정에서 오분해율 53.6%가 나와 폐기했습니다.",
+        result:
+          "반대로 실패 사례의 정답 순위(4~6위)를 근거로 정한 동적 검색 개수(min_k=6)는 측정에서 효과가 확인돼 기본값으로 채택했습니다.",
+      },
+      {
+        title: "헬스체크 기준을 '서버'에서 '서비스 응답'으로",
+        problem:
+          "Auto Scaling으로 띄운 서버가 로드밸런서 헬스체크를 계속 통과하지 못했습니다.",
+        cause:
+          "이미지를 복제한 서버는 켜지지만 Docker 컨테이너는 자동으로 다시 실행되지 않았습니다. 헬스체크를 '서버' 기준으로 두면 이런 상태를 정상으로 잘못 판단하게 됩니다.",
+        solution:
+          "컨테이너에 restart 정책을 넣고, 헬스체크를 GET /health 응답을 보는 로드밸런서 기준으로 바꿨습니다. NCP에서는 이 설정을 생성 후 수정할 수 없어 Auto Scaling 그룹을 새로 만들었습니다.",
+        result:
+          "stress-ng로 CPU 부하를 걸어 2대 → 3대 → 2대로 늘고 주는 것을 확인했습니다. 테스트 중 LLM API 장애가 실제로 발생했을 때, 근거 문서를 인용한 대체 답변으로 넘어가는 것도 확인했습니다.",
+      },
     ],
     learning:
-      "기획부터 백엔드, 프론트엔드, 클라우드 인프라까지 혼자 구축하며 서비스 전체 구조를 설계하는 경험을 했습니다. 특히 '논리적으로 타당해 보이는 개선'도 골든셋으로 실측하기 전에는 반영하지 않는 원칙을 세웠고, 실제로 하이브리드 검색은 측정 결과 recall이 떨어져 기각하는 등 데이터로 의사결정하는 습관을 길렀습니다. Private 서브넷, NAT, Auto Scaling을 직접 구성하며 겪은 장애를 통해 인프라가 애플리케이션 동작에 미치는 영향도 깊이 이해하게 되었습니다.",
+      "혼자 기획부터 배포까지 하다 보니, 그럴듯해 보이는 개선을 바로 넣고 싶을 때가 많았습니다. 그래서 평가셋으로 재기 전에는 반영하지 않는다는 규칙을 정했고, 실제로 하이브리드 검색은 재 보니 recall이 오히려 떨어져서 뺐습니다. 인프라를 직접 만지면서는 코드가 맞아도 네트워크 설정 하나로 서비스가 멈출 수 있다는 것을 알게 됐습니다.",
   },
   {
     id: 2,
     title: "ISeeU",
-    subtitle: "간호대생 중환자실(ICU) 임상 실습 및 학습 플랫폼 (외주)",
+    subtitle: "간호학과 학생의 중환자실 실습과 학습을 돕는 플랫폼",
+    role: "외주 · 프론트엔드 전체",
     category: "Freelance / Web Platform",
-    period: "2026.02 ~ 2026.02",
+    period: "2026.02",
     stack: ["React", "TypeScript", "Zustand", "Tailwind CSS", "Axios", "xlsx"],
     githubLink: "https://github.com/Watchiiee/IseeU",
     demoLink: "https://www.iseeu.kr/",
     image: "/IseeU.png",
     detailImage: "/iseeu/preceptor.webp",
     gallery: [
-      {
-        src: "/iseeu/topics.webp",
-        caption: "ICU 학습주제: 주제별 멀티미디어 학습 콘텐츠",
-      },
-      {
-        src: "/iseeu/preceptor.webp",
-        caption: "AI 프리셉터: LLM 기반 임상 추론 시나리오 롤플레잉",
-      },
-      {
-        src: "/iseeu/guide.webp",
-        caption: "실습 안내: 일정·시간표·집담회 정보 (실명 마스킹)",
-      },
+      { src: "/iseeu/topics.webp", caption: "ICU 학습주제 목록" },
+      { src: "/iseeu/preceptor.webp", caption: "AI 프리셉터 임상 추론 연습" },
+      { src: "/iseeu/guide.webp", caption: "실습 안내 (실명은 가렸습니다)" },
       {
         src: "/iseeu/students.webp",
-        caption: "관리자 학생 관리: 검색·페이지네이션 (개인정보 마스킹)",
+        caption: "관리자 학생 관리 (개인정보는 가렸습니다)",
       },
       {
         src: "/iseeu/evaluation.webp",
-        caption: "학습 현황 대시보드: 다중 헤더 통계 테이블 (개인정보 마스킹)",
+        caption: "학습 현황 표 (개인정보는 가렸습니다)",
       },
     ],
-
     description: [
-      "학습 콘텐츠(ICU 8대 주제 영상/퀴즈, 심전도, EKG 등) 제공 및 실습 일지 웹 작성/PDF 반출 기능 구현",
-      "전공 서적 기반 RAG(검색 증강 생성) 챗봇 연동 및 LLM 기반의 임상 추론 시나리오 평가(SBAR) UI 구축",
-      "메뉴 체류 시간, PDF 열람 유무, 영상 클릭 등 세밀한 사용자 행동 이벤트 로깅(Session Tracking) 처리",
-      "저작권 보호를 위해 다운로드/인쇄를 차단한 커스텀 PDF 뷰어와 약물 계산 랜덤 퀴즈 로직 구현",
-      "실시간 접속자 모니터링 및 복잡한 학생 학습 데이터의 다중 Depth 엑셀 다운로드를 포함한 관리자 대시보드 구축",
+      "ICU 8대 주제 영상과 퀴즈, 심전도 학습, 실습 일지 작성과 PDF 내보내기를 만들었습니다.",
+      "전공 서적 기반 RAG 챗봇을 연결하고, LLM으로 임상 추론 시나리오(SBAR)를 평가하는 화면을 만들었습니다.",
+      "메뉴 체류 시간, PDF 열람 여부, 영상 클릭 같은 학습 기록을 남기도록 했습니다.",
+      "강의 자료 저작권을 지키기 위해 다운로드와 인쇄를 막은 PDF 뷰어를 직접 만들었습니다.",
+      "관리자 화면에서 실시간 접속자를 보고, 학생별 학습 데이터를 엑셀로 내려받을 수 있게 했습니다.",
     ],
-
     troubleshooting: [
-      "보안/인증 고도화: HttpOnly 쿠키 기반 Silent Refresh 구현 시 발생한 CORS 및 인터셉터 무한 루프 문제를 전용 Axios 인스턴스 분리로 해결하여 안전한 인증 흐름 구축",
-      "다중 세션 동기화: 다중 기기 접속 시 발생하는 토큰 만료 충돌을 Zustand 스토어 초기화 및 즉각적인 401 예외 처리 로직으로 방어",
-      "저작권 보호 뷰어: 강의 자료(PDF)의 무단 다운로드 및 인쇄를 막기 위해 브라우저 기본 뷰어를 대체하는 커스텀 UI 및 우클릭/드래그 방지 적용",
-      "대시보드 RWD 최적화: 수십 개의 컬럼을 가진 방대한 통계 테이블에 커스텀 가로 스크롤 및 Tailwind Breakpoints 기반 동적 레이아웃을 적용하여 모바일 사용성 극대화",
+      {
+        title: "쿠키 기반 인증에서 생긴 재발급 무한 루프",
+        problem:
+          "토큰 탈취를 막으려고 HttpOnly 쿠키에 두고, 만료되면 자동으로 재발급(Silent Refresh)하도록 만들었습니다. 그런데 재발급 요청이 끝없이 반복되며 CORS 오류가 함께 났습니다.",
+        cause:
+          "재발급 요청도 같은 Axios 인스턴스를 써서, 재발급이 실패하면 인터셉터가 다시 재발급을 시도하는 구조였습니다.",
+        solution:
+          "재발급 전용 인스턴스를 분리해 인터셉터를 거치지 않게 했습니다. 여러 기기 접속으로 토큰이 엇갈릴 때는 401을 받는 즉시 Zustand 스토어를 비워, 만료된 사용자 정보가 화면에 남지 않게 했습니다.",
+      },
     ],
-
     learning:
-      "프리랜서 외주 개발자로서 클라이언트 요구사항을 분석하고 Figma 시안을 바탕으로 프론트엔드 전반을 독자적으로 구축했습니다. 단순 UI 구현을 넘어, LLM 챗봇 연동과 세밀한 사용자 이벤트 로깅 등 난이도 높은 기능들을 처리하며 프론트엔드의 역할 확장을 경험했습니다. 또한 JWT와 HttpOnly 쿠키를 조합한 안전한 인증 흐름을 설계하며 보안 지식을 쌓았고, AI 어시스턴트를 적극 활용해 복잡한 테이블 렌더링 최적화와 트러블슈팅 시간을 크게 단축했습니다.",
+      "외주라서 요구사항 정리부터 Figma 시안 구현까지 프론트엔드를 혼자 책임졌습니다. 화면뿐 아니라 챗봇 연결, 학습 기록, 쿠키 기반 인증까지 맡으면서 프론트엔드가 다루는 범위가 생각보다 넓다는 것을 알게 됐습니다. 복잡한 표 렌더링이나 버그를 잡을 때는 AI 어시스턴트를 적극적으로 활용해 시간을 줄였습니다.",
   },
   {
     id: 9,
     title: "SafetyTrip",
-    subtitle: "재난안전 여행 가이드 AI 에이전트 (2인 팀, 백엔드)",
+    subtitle: "여행지와 시기에 맞춰 재난 위험과 행동요령을 알려 주는 AI 에이전트",
+    role: "2인 팀 · 백엔드",
     category: "Team Project / Backend / AI",
-    period: "2026.07 ~ 2026.07",
+    period: "2026.07",
     stack: [
       "FastAPI",
       "LangGraph",
@@ -165,48 +195,57 @@ const projects: Project[] = [
     imageFit: "contain",
     detailImage: "/safetytrip-demo.webp",
     description: [
-      "행정안전부 긴급재난문자 3개년 53,631건과 국민행동요령 751건을 수집·정제해 Supabase(Postgres + pgvector)에 적재",
-      "LangGraph 에이전트로 질문 파싱 → 지역·시기별 재난 통계 SQL 집계 / 벡터 검색 → 2중 게이트 → 답변 생성 흐름 구현, FastAPI SSE로 스트리밍",
-      "대화 세션 체크포인트로 후속 질문에서 이전 턴의 지역·시기·동반자 맥락을 자동으로 유지",
-      "CI/CD 자동화: PR 시 lint·test, 스키마 변경 시 DB 자동 마이그레이션, Docker 이미지 빌드 → GHCR → GCE 자동 배포 및 헬스체크",
+      "긴급재난문자 3년치 53,631건과 국민행동요령 751건을 모아 정리한 뒤 Supabase(Postgres + pgvector)에 넣었습니다.",
+      "재난 통계는 SQL로 집계하고 행동요령은 벡터 검색으로 찾는 LangGraph 에이전트를 만들었습니다. 답변은 FastAPI SSE로 스트리밍합니다.",
+      "'노약자는 뭘 더 챙겨야 해?' 같은 후속 질문에서도 앞서 말한 지역, 시기, 동반자를 기억하도록 대화 상태를 저장했습니다.",
+      "PR마다 lint와 테스트를 돌리고, 스키마가 바뀌면 DB를 마이그레이션하고, main에 올라가면 GCE까지 자동으로 배포되게 했습니다.",
     ],
     troubleshooting: [
-      "근거 없는 답변 차단: 벡터 거리 기반 1차 게이트에 LLM 적합성 2차 판정을 추가하고, 자체 평가셋 30건으로 반복 캘리브레이션해 에스컬레이션 판단 F1을 50%에서 73.7%로 개선",
-      "데이터 공백 대응: 표본이 부족한 지역은 상위 행정구역으로 자동 확대하고, 그래도 부족하면 표본 부족을 사용자에게 명시하는 폴백 구현",
-      "LLM 장애 대응: 호출별 30초 timeout, 일시 오류에만 지수 백오프 재시도, 최종 실패 시 행동요령 원문과 연락처로 안전하게 강등하는 3단 방어 구현",
+      {
+        title: "답하지 말아야 할 때를 가려내는 2중 게이트",
+        problem:
+          "안전 정보는 근거 없는 답변이 실제 위험으로 이어질 수 있습니다. 그런데 벡터 거리 기준 하나로 '답할지 말지'를 정하면, 답하면 안 되는 질문을 가려내는 판단의 F1이 50%에 그쳤습니다.",
+        solution:
+          "LLM이 '이 근거로 답할 수 있는가'를 한 번 더 판정하는 2차 게이트를 붙였습니다. 기준은 행동요령이 있는 상황 20건, 없는 상황 10건(경계 사례 포함)으로 만든 평가셋으로 여러 번 조정했습니다.",
+        result:
+          "판단 F1 50% → 73.7%. 게이트를 통과하지 못한 질문은 답을 만들지 않고 재난 유형별 신고 전화로 안내합니다.",
+      },
+      {
+        title: "LLM이 실패해도 안전 정보는 전달되도록",
+        problem:
+          "외부 LLM API가 느려지거나 실패하면 사용자는 아무 정보도 받지 못합니다. 재난 상황에서는 그 자체가 문제였습니다.",
+        solution:
+          "호출마다 30초 제한, 일시 오류에만 지수 백오프 재시도, 최종 실패 시 행동요령 원문과 연락처로 대체하는 3단계로 나눴습니다. 표본이 부족한 지역은 상위 행정구역으로 넓혀 집계하고, 그래도 부족하면 그 사실을 그대로 알립니다.",
+      },
     ],
     learning:
-      "안전 도메인에서는 그럴듯한 오답이 실제 위험으로 이어질 수 있기 때문에, '모르면 모른다고 하는' 시스템을 목표로 설계했습니다. 통계는 SQL 집계로, 행동 지침은 공식 문서 인용으로만 답하게 하고 그 판단의 정확도를 precision/recall로 측정하며, 감이 아닌 지표로 품질을 관리하는 방법을 배웠습니다. 또한 DB 마이그레이션부터 컨테이너 배포까지 CI/CD 파이프라인을 구축하며 팀 개발의 배포 흐름을 자동화했습니다.",
+      "안전 정보는 틀린 답이 아예 답하지 않는 것보다 위험하다고 생각했습니다. 그래서 통계는 SQL 집계로만, 행동 지침은 공식 문서를 인용해서만 답하게 했고, 답하지 않기로 한 판단이 맞았는지도 precision과 recall로 따로 쟀습니다. 배포를 자동화하면서는 두 명이 같은 서버에 부담 없이 코드를 올릴 수 있는 흐름을 만드는 법을 익혔습니다.",
   },
   {
     id: 10,
     title: "LostOnCampus",
-    subtitle: "다시봄 · 캠퍼스 분실물 센터 (네이버클라우드 아카데미, 프론트엔드)",
+    subtitle: "캠퍼스 분실물·습득물 게시판 '다시봄'",
+    role: "네이버클라우드 아카데미 · 프론트엔드 단독",
     category: "Team Project / Web",
     period: "2026.06 ~ 2026.07",
     stack: ["React", "TypeScript", "Vite", "Docker", "Nginx", "NCP"],
     githubLink: "https://github.com/LostOnCampus/LOC-FE",
     image: "/loc-cover.webp",
     description: [
-      "캠퍼스 분실물·습득물 게시판의 프론트엔드를 단독으로 맡아, Spring 백엔드 팀과 API 명세를 기준으로 병렬 개발",
-      "환경 변수(VITE_API_URL) 유무로 mock ↔ 실제 API를 전환하는 API 계층을 설계해, 백엔드 완성 전 화면을 먼저 만들고 연동 시 페이지 코드 수정 없이 전환",
-      "{ success, message, data } 응답 래퍼 해제와 snake_case / camelCase 필드 정규화를 API 계층 한 곳에서 처리",
-      "게시글 CRUD·처리 상태 변경, 댓글, 키워드 검색, multipart 이미지 업로드, 로그인, 문의 기능 API 연동",
-      "Docker 멀티 스테이지 빌드와 Nginx 정적 서빙, /api 리버스 프록시로 VPC 내부 백엔드 로드밸런서에 연결해 네이버클라우드에 배포",
-    ],
-    troubleshooting: [
-      "한글 입력 시 댓글 중복 등록: 한글 조합 중 Enter를 누르면 keydown이 조합 확정과 함께 한 번 더 처리돼 댓글이 중복 제출되던 문제를, e.nativeEvent.isComposing으로 조합 중 입력을 무시해 해결",
-      "빌드 시점 환경 변수 누락: .dockerignore에 .env가 포함돼 Docker 빌드 단계에서 VITE_API_URL이 주입되지 않아 mock 모드로 배포되던 문제를, Vite 환경 변수는 빌드 시점에 번들에 고정된다는 점을 파악하고 .env를 빌드 컨텍스트에 포함해 해결",
-      "리버스 프록시 경로 불일치: location /api/와 proxy_pass 끝 슬래시 조합 때문에 /api 접두사가 제거된 채 백엔드로 전달되던 설정을, 접두사를 유지하도록 고치고 대상을 공인 IP 대신 VPC 내부 로드밸런서의 사설 IP로 변경",
-      "SPA 새로고침 404: 상세 페이지 URL에서 새로고침하면 Nginx가 해당 경로의 파일을 찾지 못해 404가 나던 문제를 try_files로 index.html fallback을 설정해 해결",
+      "Spring 백엔드 팀과 API 명세를 먼저 맞추고, 프론트엔드를 따로 진행했습니다.",
+      "VITE_API_URL이 없으면 mock 데이터로, 있으면 실제 서버로 요청하도록 API 코드를 한 파일에 모았습니다. 백엔드가 나오기 전에 화면을 먼저 끝냈고, 연동할 때 페이지 코드는 거의 고치지 않았습니다.",
+      "응답 래퍼를 벗기고 snake_case와 camelCase 필드를 맞추는 일도 같은 파일에서 처리했습니다.",
+      "게시글 작성·수정·삭제와 처리 상태 변경, 댓글, 검색, 이미지 업로드, 로그인, 문의를 연결했습니다.",
+      "Docker로 빌드해 Nginx로 서빙하고, /api 요청은 VPC 안의 백엔드 로드밸런서로 넘기도록 설정해 네이버클라우드에 배포했습니다.",
     ],
     learning:
-      "네이버클라우드 아카데미에서 짧은 기간 안에 프론트엔드를 맡아 백엔드 팀과 병렬로 개발했습니다. API가 나오기 전부터 mock 데이터로 화면을 완성하고 환경 변수 하나로 실제 API로 전환하는 구조를 설계해, 연동 단계에서 페이지 코드를 거의 건드리지 않고 연결할 수 있었습니다. Docker와 Nginx로 직접 배포하며 리버스 프록시 경로나 빌드 시점 환경 변수처럼 로컬에서는 드러나지 않던 배포 환경의 문제를 해결했고, 한글 입력(IME) 처리처럼 작은 디테일이 사용자 경험을 좌우한다는 것도 배웠습니다.",
+      "백엔드를 기다리지 않고 화면부터 끝내는 구조를 처음 제대로 설계해 봤습니다. 환경 변수 하나로 mock과 실제 API를 바꾸게 해 두니 연동 단계에서 고칠 게 거의 없었습니다. 반대로 배포에서는 로컬에서 멀쩡하던 것이 Docker와 Nginx를 거치며 하나씩 어긋났고, 그걸 고치면서 빌드 시점과 실행 시점의 차이를 확실히 이해했습니다.",
   },
   {
     id: 3,
     title: "G.O.A.T",
-    subtitle: "카카오엔터프라이즈 & 디케이테크인 기업실무 1팀",
+    subtitle: "사내 문서 기반 AI 챗봇 관리 시스템 'HAEZO'",
+    role: "카카오엔터프라이즈 & 디케이테크인 기업실무 1팀 · 프론트엔드",
     category: "Team Project / Web",
     period: "2025.10 ~ 2025.12",
     stack: [
@@ -223,46 +262,29 @@ const projects: Project[] = [
     image: "/HAEZO.png",
     detailImage: "/goat/dashboard.webp",
     gallery: [
-      {
-        src: "/goat/login.webp",
-        caption: "로그인: 서버 연결 상태 표시 (Offline 시 게임 제공)",
-      },
-      { src: "/goat/signup.webp", caption: "마스터 회원가입: 2단계 이메일 인증" },
-      {
-        src: "/goat/dashboard.webp",
-        caption: "대시보드: 질의량 추이·응답 유형 KPI 시각화",
-      },
-      {
-        src: "/goat/documents.webp",
-        caption: "문서 관리: 부서별 문서 업로드·승인 상태 관리",
-      },
-      { src: "/goat/faq.webp", caption: "FAQ 관리: 부서별 FAQ CRUD와 AI 추천" },
-      {
-        src: "/goat/organization.webp",
-        caption: "조직 관리: Canvas 조직도와 구성원 관리",
-      },
-      {
-        src: "/goat/history.webp",
-        caption: "이력 관리: 관리자 활동·에러 로그 기록",
-      },
-      {
-        src: "/goat/mypage.webp",
-        caption: "마이페이지: 프로필·권한 확인 (이메일 마스킹)",
-      },
+      { src: "/goat/login.webp", caption: "로그인 (서버 연결 상태 표시)" },
+      { src: "/goat/signup.webp", caption: "마스터 회원가입과 이메일 인증" },
+      { src: "/goat/dashboard.webp", caption: "대시보드" },
+      { src: "/goat/documents.webp", caption: "부서별 문서 관리" },
+      { src: "/goat/faq.webp", caption: "FAQ 관리" },
+      { src: "/goat/organization.webp", caption: "Canvas로 그린 조직도" },
+      { src: "/goat/history.webp", caption: "관리자 활동과 에러 로그" },
+      { src: "/goat/mypage.webp", caption: "마이페이지 (이메일은 가렸습니다)" },
     ],
     description: [
-      "RBAC(Master/Admin/User) 권한 시스템 및 JWT(Access/Refresh) 기반의 보안 로그인/인터셉터 구현",
-      "KPI 지표 시각화(Line/Bar/Pie) 및 서버 연결 실패 시 오프라인 게임(Flappy Bird) 제공",
-      "S3 기반 3단계 문서 업로드(URL발급→업로드→완료), 미리보기, 승인 결재 시스템 및 버전 관리",
-      "Canvas API를 활용한 반응형 조직도(줌/스크롤, 드래그 앤 드롭) 및 부서/구성원 CRUD 관리",
+      "마스터·관리자·사용자 3단계 권한과 JWT 로그인, 토큰을 붙이고 갱신하는 인터셉터를 만들었습니다.",
+      "질의량 추이와 응답 유형을 그래프로 보여 주는 대시보드를 만들었습니다. 서버에 연결되지 않으면 오프라인 미니게임이 나옵니다.",
+      "S3 업로드를 URL 발급, 업로드, 완료 3단계로 나누고 미리보기와 승인, 버전 관리를 붙였습니다.",
+      "Canvas로 확대·스크롤·드래그가 되는 조직도를 그리고, 부서와 구성원을 관리할 수 있게 했습니다.",
     ],
     learning:
-      "방대한 기능을 팀원들과 분담하여 개발하면서 Git Flow 전략과 코드 리뷰 문화를 정착시켰습니다. TypeScript와 인터셉터를 활용해 복잡한 인증/권한 로직을 안정적으로 처리하는 구조를 설계했고, 서로 다른 모듈을 통합하는 과정에서 발생한 충돌을 해결하며 긴밀한 소통 역량을 키웠습니다.",
+      "기능이 많아 팀원들과 나눠 개발하면서 Git Flow와 코드 리뷰를 팀 규칙으로 자리 잡게 했습니다. 인증과 권한은 여러 화면이 같이 쓰는 부분이라 타입과 인터셉터로 한곳에서 관리했고, 각자 만든 모듈을 합치며 생긴 충돌은 팀원들과 직접 이야기하며 풀었습니다.",
   },
   {
     id: 4,
     title: "WhyNot?",
-    subtitle: "가천대 카카오엔터프라이즈 미러링 실습 4팀",
+    subtitle: "청년 정책, 예적금, 모의투자를 한곳에서 보는 서비스 'YouthFi'",
+    role: "가천대 카카오엔터프라이즈 미러링 실습 4팀 · 프론트엔드",
     category: "Team Project / Web",
     period: "2025.09 ~ 2025.10",
     stack: ["React", "JavaScript", "Zustand", "CSS3", "React Query", "MSW"],
@@ -271,44 +293,30 @@ const projects: Project[] = [
     image: "/youthfi.png",
     detailImage: "/youthfi/invest.webp",
     gallery: [
-      {
-        src: "/youthfi/home.webp",
-        caption: "홈: 청년정책·예적금·포트폴리오 요약",
-      },
-      {
-        src: "/youthfi/policy.webp",
-        caption: "청년정책 검색: 분야·퍼스널 정보 필터와 마감순 정렬",
-      },
-      {
-        src: "/youthfi/savings.webp",
-        caption: "예·적금: 기간·상품유형·우대조건 필터 검색",
-      },
+      { src: "/youthfi/home.webp", caption: "홈" },
+      { src: "/youthfi/policy.webp", caption: "청년정책 검색" },
+      { src: "/youthfi/savings.webp", caption: "예·적금 검색" },
       {
         src: "/youthfi/invest.webp",
-        caption: "모의투자 대시보드: 지수 차트·보유 종목·거래 내역 (사용자 ID 마스킹)",
+        caption: "모의투자 대시보드 (사용자 ID는 가렸습니다)",
       },
-      {
-        src: "/youthfi/portfolio.webp",
-        caption: "포트폴리오 추천: 자산 배분 차트와 AI 분석",
-      },
-      {
-        src: "/youthfi/chatbot.webp",
-        caption: "AI 챗봇: 주가 조회·뉴스 요약·투자 분석",
-      },
+      { src: "/youthfi/portfolio.webp", caption: "포트폴리오 추천" },
+      { src: "/youthfi/chatbot.webp", caption: "투자 정보 챗봇" },
     ],
     description: [
-      "Figma와 Cursor MCP를 활용하여 초기 UI 구조 및 코드 패턴을 신속하게 정립",
-      "Axios 인스턴스 모듈화 및 React Query + Zustand를 통한 효율적인 서버/클라이언트 상태 통합 관리",
-      "ECharts/Nivo 라이브러리 기반의 데이터 시각화로 직관적인 대시보드 UX 제공",
-      "MSW(Mock Service Worker)를 도입해 백엔드 API 개발 대기 시간을 줄인 선행 개발 환경 구축",
+      "Figma 시안과 Cursor MCP로 초기 화면 구조와 코드 패턴을 빠르게 잡았습니다.",
+      "Axios 인스턴스를 모듈로 나누고, 서버 데이터는 React Query로, 화면 상태는 Zustand로 관리했습니다.",
+      "ECharts와 Nivo로 지수 차트, 자산 배분 같은 투자 대시보드를 그렸습니다.",
+      "MSW로 가짜 API를 먼저 띄워, 백엔드를 기다리지 않고 프론트엔드를 진행했습니다.",
     ],
     learning:
-      "기업 연계 미러링 실습을 통해 기획부터 배포까지의 전체적인 애자일 프로세스를 경험했습니다. 특히 MSW를 활용해 백엔드 의존성을 낮추어 팀원 간 병렬 개발 효율을 극대화했고, 전역 상태 관리 전략을 수립하며 팀원들과 코드 컨벤션을 맞추는 협업의 중요성을 깊이 배웠습니다.",
+      "기업 연계 실습에서 기획부터 배포까지 애자일 방식으로 진행했습니다. MSW 덕분에 백엔드와 프론트엔드가 서로를 기다리지 않고 함께 작업할 수 있었고, 전역 상태를 어디까지 둘지 정하면서 팀원들과 코드 컨벤션을 맞추는 일이 중요하다는 것을 배웠습니다.",
   },
   {
     id: 5,
     title: "UNI_SWAP",
-    subtitle: "고급웹프로그래밍: 대학교 중고거래 플랫폼",
+    subtitle: "대학생끼리 거래하는 중고거래 플랫폼",
+    role: "고급웹프로그래밍 팀 프로젝트",
     category: "Team Project / Platform",
     period: "2025.05 ~ 2025.06",
     stack: ["React", "JavaScript", "CSS3"],
@@ -316,90 +324,81 @@ const projects: Project[] = [
     image: "/uniswap.png",
     detailImage: "/uniswap/home.webp",
     gallery: [
-      {
-        src: "/uniswap/auth.webp",
-        caption: "로그인·회원가입: 학번·학교·학과 기반 대학생 가입",
-      },
-      {
-        src: "/uniswap/home.webp",
-        caption: "홈: 카테고리별 상품 목록",
-      },
-      {
-        src: "/uniswap/search.webp",
-        caption: "검색 필터: 카테고리·가격 범위 조건 검색",
-      },
+      { src: "/uniswap/auth.webp", caption: "로그인과 회원가입" },
+      { src: "/uniswap/home.webp", caption: "상품 목록" },
+      { src: "/uniswap/search.webp", caption: "검색 필터" },
       {
         src: "/uniswap/detail.webp",
-        caption: "상품 상세: 판매자 정보·채팅·찜 (판매자 정보 마스킹)",
+        caption: "상품 상세 (판매자 정보는 가렸습니다)",
       },
-      {
-        src: "/uniswap/register.webp",
-        caption: "상품 등록: 지도 기반 거래장소 선택",
-      },
-      { src: "/uniswap/wishlist.webp", caption: "찜한 상품 목록" },
-      {
-        src: "/uniswap/reviews.webp",
-        caption: "거래 후기: 받은 리뷰 조회와 별점 후기 작성",
-      },
-      {
-        src: "/uniswap/report.webp",
-        caption: "신고하기: 사기·스팸 등 사유별 신고",
-      },
+      { src: "/uniswap/register.webp", caption: "상품 등록과 거래 장소 지도" },
+      { src: "/uniswap/wishlist.webp", caption: "찜한 상품" },
+      { src: "/uniswap/reviews.webp", caption: "거래 후기" },
+      { src: "/uniswap/report.webp", caption: "신고하기" },
     ],
     description: [
-      "대학생 인증 기반의 폐쇄형 커뮤니티 기능",
-      "게시판 CRUD 및 실시간 검색 기능 구현",
-      "React Hooks를 활용한 컴포넌트 로직 분리",
+      "학번, 학교, 학과로 가입하는 대학생 전용 커뮤니티를 만들었습니다.",
+      "상품 게시글 작성·수정·삭제와 검색을 구현했습니다.",
+      "카카오맵으로 캠퍼스 안 거래 장소를 고르는 기능을 만들었습니다.",
+      "React Hooks로 화면과 로직을 나눴습니다.",
     ],
     troubleshooting: [
-      "빌드 환경 통합: 팀원은 CRA, 저는 Vite로 개발을 시작해 develop 병합 시 package.json과 진입 파일(index.html·main.jsx / public/index.html·index.js)이 충돌, 팀 기준인 CRA 설정으로 통합하고 제 코드의 진입점과 스크립트를 맞춰 해결",
-      "카카오맵 SDK 로드 실패: 통합 후 거래장소 지도가 표시되지 않는 문제를 CRA의 진입 HTML이 public/index.html이라 SDK 스크립트가 로드되지 않았던 것으로 파악, 스크립트 위치를 옮기고 실행 환경 도메인에 등록된 앱 키로 교체해 해결",
-      "인포윈도우 중복 표시: 마커를 클릭할 때마다 이전 인포윈도우가 닫히지 않고 쌓이는 문제를 useRef로 인포윈도우 목록을 관리해, 클릭 시 모두 닫은 뒤 선택한 장소만 열리도록 개선",
-      "이미지 경로 충돌: 병합 과정에서 public과 src에 흩어져 있던 프로필 이미지 경로가 충돌해, src/assets로 옮기고 import 방식으로 통일",
+      {
+        title: "팀원과 다른 빌드 환경을 하나로 합치기",
+        problem:
+          "저는 Vite, 팀원은 CRA로 개발을 시작해 develop에 합치자 package.json과 진입 파일이 충돌했고, 합친 뒤에는 제가 만든 거래 장소 지도가 표시되지 않았습니다.",
+        cause:
+          "CRA는 public/index.html을 진입점으로 쓰는데, 카카오맵 SDK는 Vite용 index.html에만 들어 있었습니다.",
+        solution:
+          "팀 기준인 CRA로 통일하고, 제 코드의 진입점과 SDK 로드 위치, 앱 키를 거기에 맞췄습니다.",
+      },
     ],
     learning:
-      "웹 프로그래밍 수업에서 처음으로 팀을 이뤄 서비스를 끝까지 만들어 본 프로젝트로, 제가 웹 개발에 재미를 느끼게 된 계기입니다. 화면을 컴포넌트 단위로 나누고 상태가 바뀌면 UI가 바로 반응하는 React의 방식이 흥미로웠고, 카카오맵 SDK를 붙여 실제 캠퍼스 거래 장소를 고르는 기능이 처음 동작했을 때 큰 성취감을 느꼈습니다. 또한 이 프로젝트에서 Git Flow 전략을 처음 배웠습니다. main과 develop, 기능별 feature 브랜치를 나누고 PR로 develop에 병합하는 흐름을 따르며, 각자 작업을 독립적으로 진행하면서도 안정적인 코드만 합쳐지도록 관리하는 방법을 익혔습니다. 그 과정에서 빌드 환경과 파일 경로 충돌을 직접 해결하며, 코드를 작성하는 것만큼 팀이 같은 환경에서 일할 수 있도록 맞추는 일이 중요하다는 것을 배웠습니다. 지금 다시 보면 지도 컴포넌트의 useEffect가 부모가 렌더링될 때마다 다시 실행될 수 있는 구조처럼 아쉬운 부분도 보이는데, 예전 코드의 개선점이 보인다는 것 자체가 그동안 성장했다는 증거라고 생각합니다.",
+      "웹 프로그래밍 수업에서 처음으로 팀을 꾸려 끝까지 만들어 본 서비스이고, 웹 개발이 재미있다고 느낀 계기였습니다. 카카오맵을 붙여 캠퍼스 거래 장소가 지도에 처음 찍혔을 때 정말 뿌듯했습니다. Git Flow도 여기서 처음 배웠습니다. main, develop, feature 브랜치를 나누고 PR로 합치면서, 코드만큼 팀이 같은 환경에서 일하도록 맞추는 일이 중요하다는 것을 알게 됐습니다. 지금 다시 보면 지도 컴포넌트의 useEffect가 렌더링마다 다시 실행될 수 있는 구조라 아쉽지만, 그게 보인다는 것도 그동안 성장했다는 뜻이라고 생각합니다.",
   },
   {
     id: 6,
     title: "Zipter",
-    subtitle: "소프트웨어공학: 부동산 추천 및 지역 커뮤니티",
+    subtitle: "부동산 매물 추천과 지역 커뮤니티 서비스",
+    role: "소프트웨어공학 팀 프로젝트",
     category: "Team Project / Service",
     period: "2025.05 ~ 2025.06",
     stack: ["React", "JavaScript", "CSS3"],
     githubLink: "https://github.com/Watchiiee/Zipter_Front",
     image: "/zipter.png",
     description: [
-      "지도 API 연동을 통한 매물 위치 시각화",
-      "필터링 시스템을 통한 맞춤형 매물 추천",
-      "커뮤니티 기능을 통한 사용자 간 정보 공유",
+      "지도 API로 매물 위치를 표시했습니다.",
+      "조건 필터로 원하는 매물을 추천하도록 했습니다.",
+      "지역 주민끼리 정보를 나누는 커뮤니티를 만들었습니다.",
     ],
     learning:
-      "소프트웨어 공학 이론을 바탕으로 요구사항 분석부터 설계, 구현, 테스트까지의 전체 SDLC 과정을 경험했습니다.",
+      "소프트웨어공학 수업에서 배운 대로 요구사항 분석, 설계, 구현, 테스트를 순서대로 밟아 본 프로젝트입니다.",
   },
   {
     id: 7,
     title: "Speed Quiz Game",
-    subtitle: "컴퓨터 네트워크: 텀 프로젝트",
+    subtitle: "여러 명이 동시에 겨루는 실시간 퀴즈 게임",
+    role: "컴퓨터 네트워크 텀 프로젝트",
     category: "Team Project / Backend / Java GUI",
     period: "2024.11 ~ 2024.12",
     stack: ["Java", "Java Swing"],
     githubLink: "https://github.com/Watchiiee/Network_TermProject",
     image: "/network.png",
     description: [
-      "Java Socket 프로그래밍을 이용한 실시간 멀티플레이 구현",
-      "스레드(Thread) 관리를 통한 동시 접속 처리",
-      "Java Swing을 활용한 GUI 클라이언트 제작",
+      "Java 소켓으로 서버와 클라이언트를 직접 만들어 실시간 멀티플레이를 구현했습니다.",
+      "접속자마다 스레드를 두어 여러 명이 동시에 들어와도 처리되게 했습니다.",
+      "클라이언트 화면은 Java Swing으로 만들었습니다.",
     ],
     learning:
-      "웹이 아닌 TCP/IP 소켓 통신을 직접 구현해보며 네트워크 3-4 계층의 흐름과 패킷 통신에 대한 깊은 이해를 얻었습니다.",
+      "웹 프레임워크 없이 TCP 소켓으로 통신을 직접 짜 보면서, 평소 쓰던 HTTP 아래에서 어떤 일이 일어나는지 감을 잡았습니다.",
   },
   {
     id: 1,
     title: "포트폴리오 웹사이트",
-    subtitle: "Astro 기반 개인 포트폴리오 (지금 보고 계신 사이트)",
+    subtitle: "지금 보고 계신 이 사이트",
+    role: "개인 프로젝트",
     category: "Web / Portfolio",
-    period: "2025.12 ~ 진행중",
+    period: "2025.12 ~ 진행 중",
     stack: [
       "TypeScript",
       "Astro",
@@ -413,21 +412,27 @@ const projects: Project[] = [
     demoLink: "https://watchiiee.github.io/",
     image: "/portfolio.webp",
     description: [
-      "Astro 아일랜드 아키텍처로 정적 HTML을 기본으로 렌더링하고, 인터랙션이 필요한 컴포넌트만 선택적으로 하이드레이션",
-      "Three.js 커스텀 셰이더로 Hero 배경 파티클 웨이브 구현 (물결 계산은 GPU 버텍스 셰이더에서 처리, 마우스 패럴랙스 적용)",
-      "프로젝트 상세 모달, 카테고리 필터, 스크린샷 갤러리와 키보드(← → ESC)로 조작하는 확대 보기 구현",
-      "프로젝트 데이터에 gallery·detailImage 같은 선택 필드를 두어, 컴포넌트 수정 없이 데이터 추가만으로 화면이 확장되는 구조 설계",
-      "스크린샷을 WebP로 변환·리사이즈해 장당 100KB 안팎으로 줄이고, 공개 화면 속 개인정보는 모자이크 처리",
-      "GitHub Actions로 main 브랜치 푸시 시 GitHub Pages 자동 배포",
+      "Astro로 대부분을 정적 HTML로 만들고, 움직임이 필요한 부분만 React로 불러옵니다.",
+      "첫 화면의 파티클 물결은 Three.js 셰이더로 그렸습니다. 화면에서 벗어나면 렌더링을 멈추고, 모바일에서는 파티클 수를 줄입니다.",
+      "프로젝트 데이터에 항목만 추가하면 상세 화면과 갤러리가 늘어나도록 만들었습니다.",
+      "스크린샷은 WebP로 줄여 장당 100KB 안팎으로 맞췄고, 화면 속 개인정보는 모자이크했습니다.",
+      "main에 푸시하면 GitHub Actions로 GitHub Pages에 자동 배포됩니다.",
     ],
     troubleshooting: [
-      "확대 보기 닫힘 깜빡임: 사진을 닫을 때 한 프레임 동안 원래 모습으로 번쩍이는 문제를 프레임 단위 투명도 측정으로 추적해, framer-motion(WAAPI) 애니메이션이 끝나는 순간 시작 값으로 돌아가는 현상임을 확인하고 CSS transition과 transitionend 기반 언마운트로 전환해 해결",
-      "확대 보기 열림 깜빡임: 배경과 사진이 동시에 페이드되며 반투명한 사진 뒤로 모달 글자가 비치던 문제를, 열 때는 배경 → 사진, 닫을 때는 사진 → 배경 순서로 분리하고 배경을 불투명하게 바꿔 해결",
-      "3D 배경 부담 최소화: Hero가 화면 밖에 있으면 IntersectionObserver로 렌더 루프를 멈추고, 모바일은 파티클 수를 줄이며 움직임 줄이기(prefers-reduced-motion) 설정 사용자에게는 정지 화면을 제공",
-      "트러블슈팅 문구 잘림: '제목: 내용' 형식을 split(':')로 나눠 본문에 콜론이 있으면 뒷부분이 사라지던 버그를 첫 번째 콜론 기준 분리로 수정",
+      {
+        title: "눈대중 대신 측정으로 찾은 깜빡임의 원인",
+        problem:
+          "확대한 사진을 닫을 때 사진이 한 번 번쩍였습니다. 눈으로는 페이드 순서 문제처럼 보였지만, 순서를 바꿔도 사라지지 않았습니다.",
+        cause:
+          "매 프레임 투명도를 기록해 보니, framer-motion 애니메이션이 끝나는 프레임에 값이 시작 값(1)으로 한 번 돌아가고 있었습니다.",
+        solution:
+          "확대 보기만 CSS transition으로 바꾸고, 완전히 사라진 뒤(transitionend)에 화면에서 제거했습니다.",
+        result:
+          "열기와 닫기 모두 프레임 기록에서 투명도가 거꾸로 튀는 구간이 0이 된 것을 확인했습니다.",
+      },
     ],
     learning:
-      "포트폴리오 사이트 자체를 하나의 프로젝트로 보고, 보여주는 화면만큼 그 뒤의 구조와 품질에도 신경 썼습니다. Astro 아일랜드로 3D 배경처럼 무거운 요소만 따로 불러오며 성능과 표현을 함께 챙기는 방법을 익혔고, 깜빡임처럼 눈으로만 보면 원인을 단정하기 어려운 문제는 프레임 단위로 측정해 근거를 찾은 뒤 고치는 습관을 들였습니다. 또한 실제 서비스 화면을 공개 사이트에 올리면서 학생·사용자 개인정보를 가리는 작업을 거치며, 결과물을 보여주는 일에도 책임이 따른다는 것을 배웠습니다.",
+      "포트폴리오도 하나의 프로젝트라고 생각하고 만들었습니다. 깜빡임처럼 눈으로만 보면 원인을 짐작하기 어려운 문제는 프레임 단위로 재서 원인을 확인한 뒤에 고쳤습니다. 실제 서비스 화면을 올리면서 학생과 사용자 정보를 하나하나 가리다 보니, 결과물을 공개하는 일에도 책임이 따른다는 것을 느꼈습니다.",
   },
 ];
 
@@ -625,7 +630,7 @@ export default function Projects() {
               </button>
 
               <div className="flex flex-col md:flex-row">
-                {/* 좌측 패널 */}
+                {/* 좌측 패널: 대표 화면과 기본 정보 */}
                 <div className="w-full md:w-2/5 bg-slate-800/30 p-8 flex flex-col">
                   {selectedProject.detailImage ? (
                     // 서비스 화면은 클릭하면 원본 크기로 볼 수 있도록 링크로 감쌈
@@ -633,7 +638,7 @@ export default function Projects() {
                       href={selectedProject.detailImage}
                       target="_blank"
                       rel="noreferrer"
-                      className="group/detail relative block aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 shadow-inner"
+                      className="group/detail relative block aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6"
                     >
                       <img
                         src={selectedProject.detailImage}
@@ -646,7 +651,7 @@ export default function Projects() {
                       </span>
                     </a>
                   ) : (
-                    <div className="aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 flex items-center justify-center shadow-inner">
+                    <div className="aspect-video bg-slate-700 rounded-lg overflow-hidden mb-6 flex items-center justify-center">
                       {selectedProject.image ? (
                         <img
                           src={selectedProject.image}
@@ -663,150 +668,133 @@ export default function Projects() {
                     </div>
                   )}
 
-                  <h3 className="text-2xl font-bold text-white mb-1">
+                  <h3 className="text-2xl font-bold text-white">
                     {selectedProject.title}
                   </h3>
-                  <p className="text-cyan-400 text-sm font-mono mb-6">
+                  <p className="mt-2 text-slate-300 leading-relaxed break-keep">
                     {selectedProject.subtitle}
                   </p>
 
-                  <div className="space-y-4 text-sm">
-                    <div className="flex items-start gap-3">
-                      <Calendar className="w-5 h-5 text-slate-400 shrink-0" />
-                      <div>
-                        <span className="block text-slate-400 text-xs">
-                          Period
-                        </span>
-                        <span className="text-slate-200">
-                          {selectedProject.period}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="flex items-start gap-3">
-                      <Layers className="w-5 h-5 text-slate-400 shrink-0" />
-                      <div>
-                        <span className="block text-slate-400 text-xs">
-                          Stack
-                        </span>
-                        <div className="flex flex-wrap gap-2 mt-1">
-                          {selectedProject.stack.map((tech) => (
-                            <span
-                              key={tech}
-                              className="px-2 py-1 bg-cyan-900/30 text-cyan-300 rounded text-xs"
-                            >
-                              {tech}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* 링크 렌더링 부분 */}
-                    {(selectedProject.githubLink ||
-                      selectedProject.demoLink) && (
-                      <div className="flex flex-col gap-3 pt-4 border-t border-slate-700">
-                        {selectedProject.githubLink && (
-                          <div className="flex items-start gap-3">
-                            <Github className="w-5 h-5 text-slate-400 shrink-0" />
-                            <div className="overflow-hidden">
-                              <span className="block text-slate-400 text-xs">
-                                GitHub
-                              </span>
-                              <a
-                                href={selectedProject.githubLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-cyan-400 hover:underline block truncate"
-                              >
-                                {selectedProject.githubLink}
-                              </a>
-                            </div>
-                          </div>
-                        )}
-                        {selectedProject.demoLink && (
-                          <div className="flex items-start gap-3">
-                            <ExternalLink className="w-5 h-5 text-slate-400 shrink-0" />
-                            <div className="overflow-hidden">
-                              <span className="block text-slate-400 text-xs">
-                                Deployment
-                              </span>
-                              <a
-                                href={selectedProject.demoLink}
-                                target="_blank"
-                                rel="noreferrer"
-                                className="text-cyan-400 hover:underline block truncate"
-                              >
-                                {selectedProject.demoLink}
-                              </a>
-                            </div>
-                          </div>
-                        )}
+                  <dl className="mt-6 space-y-3 text-sm">
+                    {selectedProject.role && (
+                      <div className="flex gap-4">
+                        <dt className="w-10 shrink-0 text-slate-500">역할</dt>
+                        <dd className="text-slate-200 break-keep">
+                          {selectedProject.role}
+                        </dd>
                       </div>
                     )}
-                  </div>
-                </div>
+                    <div className="flex gap-4">
+                      <dt className="w-10 shrink-0 text-slate-500">기간</dt>
+                      <dd className="text-slate-200">{selectedProject.period}</dd>
+                    </div>
+                    <div className="flex gap-4">
+                      <dt className="w-10 shrink-0 text-slate-500">기술</dt>
+                      <dd className="flex flex-wrap gap-1.5">
+                        {selectedProject.stack.map((tech) => (
+                          <span
+                            key={tech}
+                            className="px-2 py-0.5 border border-slate-600 text-slate-300 rounded text-xs"
+                          >
+                            {tech}
+                          </span>
+                        ))}
+                      </dd>
+                    </div>
+                  </dl>
 
-                {/* 우측 패널 */}
-                <div className="w-full md:w-3/5 p-8 overflow-y-auto">
-                  {/* 주요 기능 */}
-                  <div className="mb-8">
-                    <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
-                      <Code2 className="w-5 h-5 text-cyan-400" />
-                      Key Features
-                    </h4>
-                    <ul className="space-y-3">
-                      {selectedProject.description.map((desc, i) => (
-                        <li
-                          key={i}
-                          className="flex gap-3 text-slate-300 text-sm leading-relaxed"
+                  {(selectedProject.githubLink || selectedProject.demoLink) && (
+                    <div className="mt-6 flex flex-wrap gap-2">
+                      {selectedProject.githubLink && (
+                        <a
+                          href={selectedProject.githubLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-slate-600 text-sm text-slate-200 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
                         >
-                          <span className="text-cyan-500 mt-1.5">•</span>
-                          {desc}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-
-                  {/* 트러블슈팅 (데이터가 있는 경우에만 렌더링) */}
-                  {selectedProject.troubleshooting && (
-                    <div className="mb-8">
-                      <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
-                        <Wrench className="w-5 h-5 text-orange-400" />
-                        Troubleshooting
-                      </h4>
-                      <ul className="space-y-3">
-                        {selectedProject.troubleshooting.map((issue, i) => {
-                          // 첫 번째 콜론을 기준으로 제목과 내용 분리 (내용 안의 콜론은 유지)
-                          const sep = issue.indexOf(":");
-                          const title = sep > -1 ? issue.slice(0, sep) : issue;
-                          const content = sep > -1 ? issue.slice(sep + 1).trim() : "";
-                          return (
-                            <li
-                              key={i}
-                              className="text-slate-300 text-sm leading-relaxed bg-slate-800/20 p-3 rounded-lg border-l-2 border-orange-500/50"
-                            >
-                              {content ? (
-                                <>
-                                  <strong className="text-orange-300">
-                                    {title}:
-                                  </strong>{" "}
-                                  {content}
-                                </>
-                              ) : (
-                                issue
-                              )}
-                            </li>
-                          );
-                        })}
-                      </ul>
+                          <Github className="w-4 h-4" />
+                          GitHub
+                        </a>
+                      )}
+                      {selectedProject.demoLink && (
+                        <a
+                          href={selectedProject.demoLink}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-2 px-3 py-2 rounded-md border border-slate-600 text-sm text-slate-200 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
+                        >
+                          <ExternalLink className="w-4 h-4" />
+                          서비스 보기
+                        </a>
+                      )}
                     </div>
                   )}
+                </div>
 
-                  {/* 스크린샷 갤러리 (데이터가 있는 경우에만 렌더링) */}
+                {/* 우측 패널: 섹션은 아이콘이나 색 박스 없이 구분선으로만 나눔 */}
+                <div className="w-full md:w-3/5 p-8 overflow-y-auto divide-y divide-slate-700/60 [&>section]:py-7 [&>section:first-child]:pt-0 [&>section:last-child]:pb-0">
+                  <section>
+                    <h4 className="text-base font-semibold text-white mb-4">
+                      Key Features
+                    </h4>
+                    <ul className="space-y-2.5 text-sm leading-relaxed text-slate-300 break-keep list-disc pl-4 marker:text-slate-500">
+                      {selectedProject.description.map((desc, i) => (
+                        <li key={i}>{desc}</li>
+                      ))}
+                    </ul>
+                  </section>
+
+                  {selectedProject.troubleshooting && (
+                    <section>
+                      <h4 className="text-base font-semibold text-white mb-4">
+                        Troubleshooting
+                      </h4>
+                      <div className="space-y-6">
+                        {selectedProject.troubleshooting.map((t, i) => (
+                          <div key={t.title}>
+                            <p className="text-sm font-semibold text-slate-100 break-keep">
+                              <span className="text-slate-500 mr-2">
+                                {i + 1}.
+                              </span>
+                              {t.title}
+                            </p>
+                            <dl className="mt-2 space-y-1.5 text-sm leading-relaxed">
+                              {(
+                                [
+                                  ["문제", t.problem],
+                                  ["원인", t.cause],
+                                  ["해결", t.solution],
+                                  ["결과", t.result],
+                                ] as const
+                              ).map(
+                                ([label, text]) =>
+                                  text && (
+                                    <div key={label} className="flex gap-3">
+                                      <dt
+                                        className={`w-8 shrink-0 ${
+                                          label === "결과"
+                                            ? "text-cyan-400"
+                                            : "text-slate-500"
+                                        }`}
+                                      >
+                                        {label}
+                                      </dt>
+                                      <dd className="text-slate-300 break-keep">
+                                        {text}
+                                      </dd>
+                                    </div>
+                                  )
+                              )}
+                            </dl>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
                   {gallery.length > 0 && (
-                    <div className="mb-8">
-                      <h4 className="flex items-center gap-2 text-lg font-bold text-white mb-4">
-                        <Images className="w-5 h-5 text-sky-400" />
+                    <section>
+                      <h4 className="text-base font-semibold text-white mb-4">
                         Screenshots
                       </h4>
                       <div className="grid grid-cols-2 gap-3">
@@ -817,35 +805,31 @@ export default function Projects() {
                             onClick={() => openLightbox(i)}
                             className="group/shot text-left"
                           >
-                            <div className="aspect-video rounded-lg overflow-hidden bg-slate-800/60 border border-slate-700 group-hover/shot:border-cyan-400 transition-colors">
+                            <div className="aspect-video rounded-md overflow-hidden bg-slate-800/60 border border-slate-700 group-hover/shot:border-slate-400 transition-colors">
                               <img
                                 src={shot.src}
                                 alt={shot.caption}
                                 loading="lazy"
-                                className="w-full h-full object-contain transition-transform duration-300 group-hover/shot:scale-105"
+                                className="w-full h-full object-contain"
                               />
                             </div>
-                            <span className="block mt-2 text-xs text-slate-400 leading-snug break-keep">
-                              <span className="font-mono text-cyan-400 mr-1">
-                                {String(i + 1).padStart(2, "0")}
-                              </span>
+                            <span className="block mt-1.5 text-xs text-slate-400 leading-snug break-keep">
                               {shot.caption}
                             </span>
                           </button>
                         ))}
                       </div>
-                    </div>
+                    </section>
                   )}
 
-                  {/* 배운 점 */}
-                  <div>
-                    <h4 className="text-lg font-bold text-white mb-4 border-l-4 border-pink-500 pl-3">
+                  <section>
+                    <h4 className="text-base font-semibold text-white mb-4">
                       What I Learned
                     </h4>
-                    <p className="text-slate-300 text-sm leading-relaxed bg-slate-800/30 p-4 rounded-lg">
+                    <p className="text-slate-300 text-sm leading-7 break-keep">
                       {selectedProject.learning}
                     </p>
-                  </div>
+                  </section>
                 </div>
               </div>
             </motion.div>
@@ -922,7 +906,7 @@ export default function Projects() {
               className="max-h-[78vh] max-w-full object-contain rounded-lg shadow-2xl"
             />
             <figcaption className="mt-4 text-sm text-slate-300 text-center break-keep">
-              <span className="font-mono text-cyan-400 mr-2">
+              <span className="text-slate-500 mr-2">
                 {lightbox.index + 1} / {gallery.length}
               </span>
               {gallery[lightbox.index].caption}
