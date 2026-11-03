@@ -1,9 +1,12 @@
 // src/components/ParticleWave.tsx
 // Hero 배경: 격자 형태의 파티클이 물결치고, 마우스 위치에 따라 카메라가 기울어지는 Three.js 씬
 // 첫 접속 시 흩어진 파티클이 "Build" → "Ship" → "Experience"를 차례로 만들었다가 물결로 풀리는 인트로를 재생
+// 물결 상태에서는 커서 주변 파티클이 솟아오르며 밝아지고, 클릭하면 그 지점에서 파문이 퍼짐
 import { useEffect, useRef, useState } from "react";
 import {
   AdditiveBlending,
+  Plane,
+  Raycaster,
   BufferGeometry,
   Color,
   Float32BufferAttribute,
@@ -13,6 +16,7 @@ import {
   ShaderMaterial,
   Vector2,
   Vector3,
+  Vector4,
   WebGLRenderer,
 } from "three";
 
@@ -36,15 +40,35 @@ const vertexShader = /* glsl */ `
   uniform float uBurst;
   uniform float uDensityFrom;
   uniform float uDensityTo;
+  uniform vec3 uMouse; // 커서가 가리키는 물결 평면 위 지점
+  uniform float uMouseStrength; // 커서가 Hero 위에 있을 때 1, 벗어나면 0으로 서서히
+  uniform vec4 uRipple; // xyz: 클릭 지점, w: 클릭 후 경과 시간(초, 음수면 없음)
   attribute vec3 aFrom;
   attribute vec3 aTo;
   attribute vec3 aScatter;
   attribute float aRand;
   varying float vHeight;
   varying float vAlpha;
+  varying float vGlow;
 
   void main() {
     vec3 p = position;
+    vec2 toMouse = position.xz - uMouse.xz;
+    float dMouse = length(toMouse);
+
+    // 커서 주변: 가우시안 모양으로 솟아오르고 바깥으로 살짝 밀려남
+    float hover = exp(-dMouse * dMouse / 9.0) * uMouseStrength;
+    p.y += hover * 1.4;
+    p.xz += (dMouse > 0.001 ? toMouse / dMouse : vec2(0.0)) * hover * 0.6;
+
+    // 클릭 파문: 클릭 지점에서 퍼져 나가는 고리, 시간이 지날수록 약해짐
+    float ring = 0.0;
+    if (uRipple.w >= 0.0) {
+      float dRipple = distance(position.xz, uRipple.xz);
+      float front = uRipple.w * 12.0;
+      ring = exp(-pow(dRipple - front, 2.0) / 2.5) * exp(-uRipple.w * 1.1);
+      p.y += ring * 1.6;
+    }
     float wave =
       sin(p.x * 0.22 + uTime * 0.8) * 1.1 +
       cos(p.z * 0.28 + uTime * 0.6) * 0.9 +
@@ -74,7 +98,8 @@ const vertexShader = /* glsl */ `
     // 글자 상태에서는 점을 작게 해서 획이 또렷하도록
     float waveness = uToWave * s;
     gl_PointSize = uSize * (18.0 / -mvPosition.z) * mix(0.55, 1.0, waveness);
-    vHeight = mix(1.6, wave, waveness);
+    vHeight = mix(1.6, wave + hover * 1.4 + ring * 1.6, waveness);
+    vGlow = clamp(hover * 0.8 + ring, 0.0, 1.0) * waveness;
 
     // 짧은 단어는 입자가 몰려 더 밝아지므로 단어 면적에 맞춰 밝기를 보정
     float density = mix(mix(uDensityFrom, uDensityTo, s), 1.0, waveness);
@@ -88,6 +113,7 @@ const fragmentShader = /* glsl */ `
   uniform vec3 uColorHigh;
   varying float vHeight;
   varying float vAlpha;
+  varying float vGlow;
 
   void main() {
     // 사각형 포인트를 부드러운 원형으로
@@ -97,7 +123,9 @@ const fragmentShader = /* glsl */ `
 
     // 물결의 높은 곳은 시안, 낮은 곳은 짙은 파랑
     vec3 color = mix(uColorLow, uColorHigh, smoothstep(-2.0, 2.2, vHeight));
-    gl_FragColor = vec4(color, alpha);
+    // 커서·파문에 닿은 파티클은 흰빛에 가깝게 밝아짐
+    color = mix(color, vec3(0.8, 0.98, 1.0), vGlow * 0.6);
+    gl_FragColor = vec4(color, alpha * (1.0 + vGlow * 0.8));
   }
 `;
 
@@ -228,6 +256,9 @@ export default function ParticleWave() {
         uBurst: { value: 0 },
         uDensityFrom: { value: 1 },
         uDensityTo: { value: 1 },
+        uMouse: { value: new Vector3(0, 0, -1000) },
+        uMouseStrength: { value: 0 },
+        uRipple: { value: new Vector4(0, 0, 0, -1) },
       },
       transparent: true,
       depthWrite: false,
@@ -372,18 +403,81 @@ export default function ParticleWave() {
       if (holdDone) enterStage(skipRequested ? stages.length - 1 : stageIndex + 1, now);
     };
 
-    // 마우스 패럴랙스
+    // 마우스 패럴랙스 + 커서가 가리키는 물결 평면(y = 0) 위 지점 계산
     const pointer = new Vector2();
+    const ndc = new Vector2();
+    const raycaster = new Raycaster();
+    const wavePlane = new Plane(new Vector3(0, 1, 0), 0);
+    const mouseTarget = new Vector3(0, 0, -1000);
+    const hit = new Vector3();
+    let pointerActive = false;
+    let hasPointer = false;
+
+    const pointToWave = (clientX: number, clientY: number, out: Vector3) => {
+      const rect = container.getBoundingClientRect();
+      ndc.set(
+        ((clientX - rect.left) / rect.width) * 2 - 1,
+        -((clientY - rect.top) / rect.height) * 2 + 1
+      );
+      raycaster.setFromCamera(ndc, camera);
+      return raycaster.ray.intersectPlane(wavePlane, out) !== null;
+    };
+
     const onPointerMove = (e: PointerEvent) => {
       pointer.set(
         (e.clientX / window.innerWidth) * 2 - 1,
         (e.clientY / window.innerHeight) * 2 - 1
       );
+      // 터치는 손가락을 뗀 뒤 효과가 남지 않도록 마우스만 추적
+      if (e.pointerType !== "mouse") return;
+      const rect = container.getBoundingClientRect();
+      const inside = e.clientY >= rect.top && e.clientY <= rect.bottom;
+      pointerActive = inside && pointToWave(e.clientX, e.clientY, hit);
+      if (pointerActive) {
+        mouseTarget.copy(hit);
+        // 처음 들어올 때는 반대편에서 미끄러져 오지 않도록 바로 그 위치로
+        if (!hasPointer) u.uMouse.value.copy(hit);
+        hasPointer = true;
+      }
+    };
+    const onPointerLeave = () => {
+      pointerActive = false;
     };
     window.addEventListener("pointermove", onPointerMove);
+    document.documentElement.addEventListener("pointerleave", onPointerLeave);
+
+    // 클릭(탭) 지점에서 파문 시작: Hero 영역 안에서만
+    // (컴포넌트는 display: contents인 astro-island 안에 있으므로 가장 가까운 section에 등록)
+    const heroSection = container.closest("section") ?? container;
+    let rippleStart = -1;
+    const onPointerDown = (e: PointerEvent) => {
+      if (pointToWave(e.clientX, e.clientY, hit)) {
+        u.uRipple.value.set(hit.x, hit.y, hit.z, 0);
+        rippleStart = -2; // 다음 프레임 시각을 기준으로 시작
+      }
+    };
+    heroSection.addEventListener("pointerdown", onPointerDown);
+
+    const updatePointer = (time: number) => {
+      // 커서 위치와 세기를 부드럽게 따라가도록 보간
+      u.uMouse.value.lerp(mouseTarget, 0.12);
+      u.uMouseStrength.value +=
+        ((pointerActive ? 1 : 0) - u.uMouseStrength.value) * 0.06;
+
+      if (rippleStart === -2) rippleStart = time;
+      if (rippleStart >= 0) {
+        const t = (time - rippleStart) / 1000;
+        u.uRipple.value.w = t;
+        if (t > 3) {
+          rippleStart = -1;
+          u.uRipple.value.w = -1;
+        }
+      }
+    };
 
     const render = (time: number) => {
       updateIntro(time);
+      updatePointer(time);
       u.uTime.value = time / 1000;
       camera.position.x += (pointer.x * 3 - camera.position.x) * 0.03;
       camera.position.y += (6 - pointer.y * 1.5 - camera.position.y) * 0.03;
@@ -420,6 +514,8 @@ export default function ParticleWave() {
       observer.disconnect();
       resizeObserver.disconnect();
       window.removeEventListener("pointermove", onPointerMove);
+      document.documentElement.removeEventListener("pointerleave", onPointerLeave);
+      heroSection.removeEventListener("pointerdown", onPointerDown);
       window.removeEventListener("scroll", onScroll);
       geometry.dispose();
       material.dispose();
