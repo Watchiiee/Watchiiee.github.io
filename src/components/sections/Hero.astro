@@ -5,6 +5,27 @@ import ParticleWave from "@/components/ParticleWave";
 import ScrollIndicator from "@/components/ScrollIndicator";
 ---
 
+<script is:inline>
+  // 인트로("Watchiiee" 파티클) 재생 여부를 그리기 전에 결정해서, Hero 텍스트가 먼저 보였다 사라지는 깜빡임을 막음
+  // 같은 탭에서 이미 봤거나, 움직임 최소화 설정이거나, 스크롤된 채로 열었거나, WebGL이 없으면 생략
+  (function () {
+    try {
+      var root = document.documentElement;
+      if (sessionStorage.getItem("introPlayed")) return;
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+      if (window.scrollY > window.innerHeight * 0.5) return;
+      var gl = document.createElement("canvas");
+      if (!(gl.getContext("webgl2") || gl.getContext("webgl"))) return;
+      sessionStorage.setItem("introPlayed", "1");
+      root.classList.add("intro-pending");
+      // 스크립트 로딩 실패 등으로 인트로가 끝나지 않아도 텍스트는 반드시 보이도록
+      setTimeout(function () {
+        root.classList.remove("intro-pending");
+      }, 9000);
+    } catch (e) {}
+  })();
+</script>
+
 <section
   id="hero"
   class="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#0a192f] text-white"
@@ -21,7 +42,7 @@ import ScrollIndicator from "@/components/ScrollIndicator";
   >
   </div>
 
-  <div class="relative z-10 container mx-auto px-6 text-center">
+  <div class="hero-intro-fade relative z-10 container mx-auto px-6 text-center">
     <h1
       class="text-4xl sm:text-5xl md:text-7xl font-extrabold tracking-tight mb-4 uppercase"
     >
@@ -75,5 +96,27 @@ import ScrollIndicator from "@/components/ScrollIndicator";
     </div>
   </div>
 
-  <ScrollIndicator />
+  <div class="hero-intro-fade-only">
+    <ScrollIndicator />
+  </div>
 </section>
+
+<style is:global>
+  /* 인트로 동안 Hero 텍스트를 숨겼다가, 파티클 글자가 풀릴 때 부드럽게 드러냄 */
+  .hero-intro-fade {
+    transition:
+      opacity 0.9s ease,
+      transform 0.9s ease;
+  }
+  .intro-pending .hero-intro-fade {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  /* 스크롤 표시는 absolute 배치라 transform 없이 투명도만 조절 */
+  .hero-intro-fade-only {
+    transition: opacity 0.9s ease 0.3s;
+  }
+  .intro-pending .hero-intro-fade-only {
+    opacity: 0;
+  }
+</style>
