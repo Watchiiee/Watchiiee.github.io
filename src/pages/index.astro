@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Logo from '@/components/Logo';
+import Navbar from '@/components/Navbar';
 import Hero from '@/components/sections/Hero.astro';
 import Expertise from '@/components/sections/Expertise';
 import Projects from '@/components/sections/Projects';
@@ -10,7 +10,7 @@ import '@/styles/global.css';
 ---
 
 <Layout title="정명성 | Full-Stack Developer">
-  <Logo client:load />
+  <Navbar client:load />
 
   <main class="bg-[#0a192f]">
     <Hero />
