@@ -1,63 +1,142 @@
 ---
 // src/components/sections/Contact.astro
-import { User, GraduationCap, Mail, Github } from "lucide-react";
+// 마무리 섹션: 큰 문구 + 이메일(복사 버튼) + GitHub, 그 아래 기본 정보
+import { User, GraduationCap, Mail, Github, Copy, Check } from "lucide-react";
 
-const contacts = [
+const email = "op7970@gmail.com";
+const github = "https://github.com/Watchiiee";
+
+const info = [
   { icon: User, label: "Name", value: "정명성" },
   {
     icon: GraduationCap,
     label: "Education",
     value: "가천대학교 IT융합대학 AI·소프트웨어학부 소프트웨어전공",
   },
-  {
-    icon: Mail,
-    label: "Email",
-    value: "op7970@gmail.com",
-    href: "mailto:op7970@gmail.com",
-  },
-  {
-    icon: Github,
-    label: "GitHub",
-    value: "github.com/Watchiiee",
-    href: "https://github.com/Watchiiee",
-  },
 ];
 ---
 
-<section id="contact" class="py-24 bg-[#0a192f] text-white">
-  <div class="container mx-auto px-6">
-    <div class="mb-16">
-      <h2 class="text-4xl md:text-5xl font-bold mb-6">Contact</h2>
-      <p class="text-slate-400 max-w-2xl text-lg leading-relaxed break-keep">
-        함께 일할 기회나 궁금한 점이 있다면 편하게 연락주세요.
-      </p>
+<section id="contact" class="relative py-32 bg-[#0a192f] text-white overflow-hidden">
+  {/* 은은한 시안 빛: 마지막 섹션임을 알리는 정도로만 */}
+  <div
+    aria-hidden="true"
+    class="pointer-events-none absolute left-1/2 top-1/3 -translate-x-1/2 -translate-y-1/2 w-[48rem] max-w-[120vw] aspect-square rounded-full bg-[radial-gradient(circle,rgba(34,211,238,0.12)_0%,rgba(34,211,238,0)_65%)]"
+  >
+  </div>
+
+  <div class="relative container mx-auto px-6 text-center">
+    <p class="font-mono text-sm text-cyan-400 mb-6">04. What's Next?</p>
+    <h2
+      class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight leading-tight mb-6 break-keep"
+    >
+      함께 만들어갈<br />다음 프로젝트를 기다립니다
+    </h2>
+    <p
+      class="text-slate-400 max-w-xl mx-auto text-lg leading-relaxed mb-12 break-keep"
+    >
+      채용, 협업 제안, 프로젝트에 대한 궁금한 점 모두 환영합니다.<br
+        class="hidden md:block"
+      />
+      편하게 연락주세요.
+    </p>
+
+    {/* 이메일: 주소를 크게 보여주고 복사 버튼 제공 */}
+    <div
+      class="inline-flex flex-wrap items-center justify-center gap-3 max-w-full mb-8"
+    >
+      <span
+        class="font-mono text-xl sm:text-2xl md:text-3xl text-slate-100 break-all"
+        data-email-text
+      >
+        {email}
+      </span>
+      <button
+        type="button"
+        data-copy-email={email}
+        aria-label="이메일 주소 복사"
+        class="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-600 text-sm text-slate-300 hover:border-cyan-400 hover:text-cyan-400 transition-colors"
+      >
+        <Copy className="w-4 h-4" data-copy-icon />
+        <Check className="w-4 h-4 hidden text-cyan-400" data-check-icon />
+        <span data-copy-label>복사</span>
+      </button>
+    </div>
+    {/* 화면 읽기 프로그램에 복사 결과를 알림 */}
+    <p class="sr-only" aria-live="polite" data-copy-status></p>
+
+    <div class="flex flex-wrap items-center justify-center gap-4">
+      <a
+        href={`mailto:${email}`}
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-cyan-400 text-[#0a192f] font-semibold hover:bg-cyan-300 transition-colors"
+      >
+        <Mail className="w-5 h-5" />
+        메일 보내기
+      </a>
+      <a
+        href={github}
+        target="_blank"
+        rel="noreferrer"
+        class="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-slate-500 text-slate-200 font-semibold hover:border-cyan-400 hover:text-cyan-400 transition-colors"
+      >
+        <Github className="w-5 h-5" />
+        GitHub
+      </a>
     </div>
 
-    <ul class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    {/* 기본 정보 */}
+    <ul
+      class="mt-20 pt-10 border-t border-slate-800 flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 text-sm"
+    >
       {
-        contacts.map(({ icon: Icon, label, value, href }) => (
-          <li class="flex items-start gap-4 p-6 border border-slate-700 bg-[#112240]/50 hover:border-slate-500 transition-colors">
-            <Icon className="w-6 h-6 text-cyan-400 shrink-0 mt-0.5" />
-            <div class="min-w-0">
-              <span class="block text-slate-400 text-xs font-mono mb-1">
-                {label}
-              </span>
-              {href ? (
-                <a
-                  href={href}
-                  target={href.startsWith("http") ? "_blank" : undefined}
-                  rel={href.startsWith("http") ? "noreferrer" : undefined}
-                  class="text-cyan-400 hover:underline break-all"
-                >
-                  {value}
-                </a>
-              ) : (
-                <span class="text-slate-200 break-keep">{value}</span>
-              )}
-            </div>
+        info.map(({ icon: Icon, label, value }) => (
+          <li class="flex items-center gap-3 text-left">
+            <Icon className="w-5 h-5 text-cyan-400 shrink-0" />
+            <span class="font-mono text-slate-500">{label}</span>
+            <span class="text-slate-300 break-keep">{value}</span>
           </li>
         ))
       }
     </ul>
   </div>
 </section>
+
+<script>
+  // 이메일 복사: 성공하면 2초간 "복사됨" 표시, 클립보드를 쓸 수 없으면 주소를 선택해 직접 복사하도록
+  const button = document.querySelector<HTMLButtonElement>("[data-copy-email]");
+  const label = button?.querySelector<HTMLElement>("[data-copy-label]");
+  const copyIcon = button?.querySelector<SVGElement>("[data-copy-icon]");
+  const checkIcon = button?.querySelector<SVGElement>("[data-check-icon]");
+  const status = document.querySelector<HTMLElement>("[data-copy-status]");
+  const emailText = document.querySelector<HTMLElement>("[data-email-text]");
+  let timer = 0;
+
+  const showCopied = (copied: boolean) => {
+    if (!label || !copyIcon || !checkIcon) return;
+    label.textContent = copied ? "복사됨" : "복사";
+    copyIcon.classList.toggle("hidden", copied);
+    checkIcon.classList.toggle("hidden", !copied);
+  };
+
+  const selectEmail = () => {
+    if (!emailText) return;
+    const range = document.createRange();
+    range.selectNodeContents(emailText);
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+  };
+
+  button?.addEventListener("click", async () => {
+    const email = button.dataset.copyEmail ?? "";
+    try {
+      await navigator.clipboard.writeText(email);
+      showCopied(true);
+      if (status) status.textContent = "이메일 주소를 복사했습니다.";
+      window.clearTimeout(timer);
+      timer = window.setTimeout(() => showCopied(false), 2000);
+    } catch {
+      selectEmail();
+      if (status) status.textContent = "주소를 선택했습니다. 직접 복사해 주세요.";
+    }
+  });
+</script>
